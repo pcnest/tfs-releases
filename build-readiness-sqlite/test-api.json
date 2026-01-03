@@ -1,0 +1,15 @@
+﻿{
+    "release_id":  "test",
+    "id":  1,
+    "type":  "Bug",
+    "title":  "Test",
+    "state":  "Done",
+    "tags":  "",
+    "acceptanceCriteria":  "",
+    "description":  "",
+    "devNotes":  "test",
+    "qaNotes":  "test",
+    "score":  "4/4",
+    "missing":  "",
+    "reviewEvidence":  "None"
+}

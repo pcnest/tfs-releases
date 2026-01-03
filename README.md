@@ -1,13 +1,14 @@
-Scaffold a local-only web app (Node 18+, TypeScript) that stores data in a local SQLite DB and renders an HTML table. No cloud. No ORM.
+Scaffold a local-only web app (Node 18+, TypeScript) that accepts JSON from a PowerShell agent, stores rows in SQLite, and renders a release table. No cloud, no ORM.
 
 ### Stack
 
 - Node 18+, TypeScript
 - Express + EJS (server-rendered)
-- SQLite via better-sqlite3 (sync, local file ./data/build_readiness.db)
-- Tailwind via CDN (no build tool)
-- helmet + morgan middleware
+- SQLite via better-sqlite3 (DB file: ./data/build_readiness.db)
+- Tailwind via CDN
+- helmet + morgan
 - zod for payload validation
+- dotenv for AUTH_TOKEN and PORT
 
 ### Project structure
 
@@ -21,18 +22,17 @@ public/styles.css
 .env.example
 .gitignore
 README.md
-data/ (create at runtime; holds build_readiness.db)
+data/ (created at runtime; holds build_readiness.db)
 
 ### .env.example
 
-AUTH_TOKEN=<replace-me>
+AUTH_TOKEN=c5e8a1f0d3b2c4971a6e8d05f4c3b2a19e7d6c5b4a3f2e1098d7c6b5a4e3d2c1
 PORT=8080
 
-### DB (better-sqlite3)
+### Database (better-sqlite3)
 
-- Create folder ./data if missing.
-- Open ./data/build_readiness.db.
-- On startup, run this SQL (idempotent):
+- Ensure ./data exists; open ./data/build_readiness.db.
+- On startup, run this idempotent SQL:
 
 CREATE TABLE IF NOT EXISTS build_readiness (
 release_id TEXT NOT NULL,
@@ -46,36 +46,35 @@ description TEXT,
 dev_notes TEXT,
 qa_notes TEXT,
 score TEXT, -- e.g., "4/6"
-missing TEXT, -- e.g., "PeerReview, QANotes"
-cc8 TEXT, -- e.g., "B,D,E,F"
-code_review_type TEXT,
-review_evidence TEXT, -- "Field" or "Relation"
+missing TEXT, -- e.g., "DevNotes, QANotes"
+review_evidence TEXT, -- e.g., "Field" or "Relation"
 created_at TEXT NOT NULL DEFAULT (datetime('now')),
 PRIMARY KEY (release_id, wi_id)
 );
 CREATE INDEX IF NOT EXISTS idx_release ON build_readiness(release_id);
 
-- Provide helper functions:
-
-  - replaceReleaseRows(releaseId, rows[]) -> wraps in a transaction:
+- Provide DB helpers:
+  - replaceReleaseRows(releaseId: string, rows: DbRow[]) -> transaction:
     DELETE FROM build_readiness WHERE release_id = ?;
-    then INSERT ... ON CONFLICT(release_id, wi_id) DO UPDATE SET
+    then bulk INSERT with:
+    INSERT INTO build_readiness(...)
+    VALUES(...)
+    ON CONFLICT(release_id, wi_id) DO UPDATE SET
     wi_type=excluded.wi_type, title=excluded.title, state=excluded.state,
     tags=excluded.tags, acceptance_criteria=excluded.acceptance_criteria,
     description=excluded.description, dev_notes=excluded.dev_notes,
     qa_notes=excluded.qa_notes, score=excluded.score, missing=excluded.missing,
-    cc8=excluded.cc8, code_review_type=excluded.code_review_type,
     review_evidence=excluded.review_evidence, created_at=excluded.created_at;
-
   - getByRelease(releaseId) ORDER BY wi_type, wi_id;
-  - getCounts(releaseId) -> { total, pbiCount, bugCount, fullScoreCount } where fullScoreCount counts rows whose score matches /^\d+\/\1$/ after parsing numerator/denominator (or simpler: equals "4/4" if your max is fixed).
+  - getCounts(releaseId) -> { total, pbiCount, bugCount, fullScoreCount }
+    (fullScoreCount = rows whose score has equal numerator/denominator, e.g., "4/4").
 
 ### Types (types.ts)
 
-Define a Row shape aligned to agent output:
-{
+Define API row (from agent) and DB row (snake_case):
+type ApiRow = {
 release_id: string;
-id: number; // maps to wi_id
+id: number; // -> wi_id
 type: string; // -> wi_type
 title: string;
 state: string;
@@ -84,43 +83,66 @@ acceptanceCriteria?: string;
 description?: string;
 devNotes?: string;
 qaNotes?: string;
+score?: string; // "N/M"
+missing?: string; // "DevNotes, QANotes"
+reviewEvidence?: string; // "Field" | "Relation" | "None"
+}
+type DbRow = {
+release_id: string;
+wi_id: number;
+wi_type: string;
+title: string;
+state: string;
+tags?: string;
+acceptance_criteria?: string;
+description?: string;
+dev_notes?: string;
+qa_notes?: string;
 score?: string;
 missing?: string;
-cc8?: string;
-codeReviewType?: string;
-reviewEvidence?: string;
+review_evidence?: string;
+created_at?: string;
 }
+Add a zod schema for ApiRow[] and a mapper ApiRow -> DbRow.
 
-Provide a zod schema that validates an array of these.
+### Express app
 
-### Express app (index.ts + routes.ts)
+- index.ts:
+  - load .env (dotenv)
+  - express.json({ limit: '2mb' }), helmet, morgan, serve /public
+  - run DB init/migration
+  - bind to 127.0.0.1 by default: app.listen(port, '127.0.0.1', ...)
+- routes.ts:
+  - GET /healthz -> { ok: true }
+  - POST /api/ingest
+    - Require Authorization: Bearer <AUTH_TOKEN>
+    - Body: array<ApiRow>; validate with zod (max ~5000 rows)
+    - Ensure all rows share the same release_id; reject if mixed
+    - Map to DbRow (id->wi_id, type->wi_type, acceptanceCriteria->acceptance_criteria,
+      devNotes->dev_notes, qaNotes->qa_notes, reviewEvidence->review_evidence)
+    - replaceReleaseRows(releaseId, mappedRows)
+    - Return { ok: true, release_id, inserted: n }
+  - GET /release/:rid.json -> return rows as JSON (ordered by wi_type, wi_id)
+  - GET /release/:rid -> render EJS table
+    - compute counts: total, PBI vs Bug (by wi_type), and % full-score
 
-- Use express.json({ limit: '2mb' }), helmet, morgan; serve /public.
-- GET /healthz -> { ok: true }
-- POST /api/ingest
-  - Require Authorization: Bearer <AUTH_TOKEN> from process.env.
-  - Body: array<Row>. Validate with zod.
-  - Extract release_id from the first row; ensure all rows share it.
-  - Map fields to DB:
-    wi_id=id, wi_type=type, acceptance_criteria=acceptanceCriteria,
-    dev_notes=devNotes, qa_notes=qaNotes, code_review_type=codeReviewType,
-    review_evidence=reviewEvidence
-  - Call replaceReleaseRows(release_id, rows).
-  - Return { ok: true, release_id, inserted: n }
-- GET /release/:rid.json -> JSON of rows
-- GET /release/:rid -> render views/table.ejs, passing rows + counts
+### Views (EJS)
 
-### Views
-
-- layout.ejs: HTML shell, Tailwind CDN, container, header, slot for body.
+- layout.ejs: HTML shell with Tailwind CDN; container; slot for body
 - table.ejs:
-  - Sticky header showing: Release <rid>, counts for PBIs, Bugs, Total, and % “full score”
-  - Search input (client-side filter by title/type/state/tags)
-  - Table columns: WI, Type, Title, State, Score, Missing, DevNotes?, QANotes?, Tags, CodeReview
-  - DevNotes?/QANotes? show ✓ if non-empty
-  - Two buttons: “Copy CSV” and “Copy TSV” (JS walks visible rows and copies to clipboard)
+  - Sticky header: “Release <rid>” + counts (PBIs, Bugs, Total, % full score)
+  - Search input that filters rows by title/type/state/tags (client-side JS)
+  - Table columns: WI, Type, Title, State, Score, Missing, DevNotes?, QANotes?, Tags, Review
+    - DevNotes?/QANotes? show ✓ if non-empty
+    - Review shows review_evidence or empty dash
+  - Buttons: “Copy CSV” and “Copy TSV” (copy only visible/filtered rows)
 
-### package.json (server/package.json)
+### Security
+
+- Check AUTH_TOKEN on /api/ingest; if missing/invalid -> 401
+- Keep server bound to localhost unless explicitly changed
+
+### package.json (server)
 
 Scripts:
 "dev": "tsx src/index.ts",
@@ -131,18 +153,12 @@ express, ejs, helmet, morgan, better-sqlite3, dotenv, zod
 DevDeps:
 typescript, tsx, @types/node, @types/express, @types/morgan
 
-### tsconfig.json
+### tsconfig
 
-- TS target ES2020, moduleResolution node, outDir dist, rootDir src.
+- target ES2020; moduleResolution node; outDir dist; rootDir src; strict true
 
-### Security
+### Empty-state UX
 
-- Bind to 127.0.0.1 by default (local only).
-- Check AUTH_TOKEN on /api/ingest.
-
-### Small UX details
-
-- If release has no rows, show an empty-state message with the curl example to ingest.
-- Show DB file path somewhere small in the footer (for troubleshooting).
+If /release/:rid has 0 rows, show an empty-state with curl POST example for /api/ingest.
 
 Generate all files with runnable code and comments. Make it work locally out of the box.
