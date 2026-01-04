@@ -1,28 +1,754 @@
-﻿"id"	"type"	"title"	"state"	"score"	"missing"	"acceptanceCriteria"	"description"	"devNotes"	"qaNotes"	"tags"	"reviewEvidence"
-"196703"	"Bug"	"SupplyMobile (MAUI): AdHoc Order > First submitted order does not appear immediately until user re-navigates in Order List after Force Sync"	"Branch Checkin"	"3/4"	"QANotes"	"The first submitted AdHoc Order should appear immediately in the Order List after submission. If not immediate, performing Force Sync on the Order List should be enough to refresh and display the new order. User should not be required to leave and re-enter the Order List screen just to see the new order."	"Issue: First submitted order does not appear immediately until user re-navigates in Order List after Force Sync Environment: PROD/QA Additional Info: Devnotes: ### Change Summary ### What Changed: Update MainViewModel.cs What Was Impacted: Order Transaction What Must Be Tested: Order Transaction ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update MainViewModel.cs What Was Impacted: Order Transaction What Must Be Tested: Order Transaction"	""	"5.0.6; 5.0.6.1"	"Field"
-"196344"	"Bug"	"SupplyMobile (MAUI): Reclaim > After successful Reclaim, Current Quantity value of location briefly appears as Pmax less the Reclaim Quantity "	"Branch Checkin"	"3/4"	"DevNotes"	"Current Quantity should correctly update to Previous Qty - Reclaim Qty immediately after Reclaim confirmation. There should be No intermediate or transient display of incorrect values (e.g., Pmax - Reclaim Qty). Behavior must be consistent across single-location and multi-location products."	"Issue: After successful Reclaim, Current Quantity value of location briefly appears as Pmax less the Reclaim Quantity Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"103256"	"Product Backlog Item"	"NextGen: Mobile : MFA > Update MFA verification screen verbiage"	"Ready for QA"	"2/4"	"DevNotes, QANotes"	"when requirements are delivered"	"Dev Notes: -Update verification screen verbiage ### Change Summary ### What Changed: Summary Pages for Take and Return What Was Impacted: Summary Pages for Take and Return What Must Be Tested: Summary Pages for Take and Return Scanning a lot of barcodes ### Peer Review ### Buddy Tested by: Winston Gubantes Buddy Test Date: 07-17-2025 Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1; MFA_ph2"	"Field"
-"197799"	"Bug"	"SupplyMobile (MAUI): T/R Product Issuance > Select User: Login Allocation Does Not Follow Correct Sequence for TrueOnline Device"	"Branch Checkin"	"3/4"	"QANotes"	"For TrueOnline device, Login allocation should follow the correct and defined sequence when selecting a user. The app should proceed to the correct next allocation based on allocation setup in SSIS > Users > Administration Behavior should be consistent just like TrueOnline = FALSE devices"	"Issue: Login Allocation Does Not Follow Correct Sequence for TrueOnline Device after selecting user Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: Update AllocationCodeViewModel.cs What Was Impacted: Allocation Code List Entry Order What Must Be Tested: Login Allocation Code Product Issuance ### Peer Review ### Buddy Tested by: Winston Gubantes Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update AllocationCodeViewModel.cs What Was Impacted: Allocation Code List Entry Order What Must Be Tested: Login Allocation Code Product Issuance"	""	"5.0.6; 5.0.6.1"	"Field"
-"197752"	"Bug"	"SupplyMobile (MAUI): Order > ESL Feature: Searching by ESL Number Does Not Return Matching Product (Mobile phone)"	"In Development"	"2/4"	"DevNotes, QANotes"	"The product associated with the entered ESL number should be returned and displayed User should be able to proceed in transaction screen using ESL-based search."	"Issue: Searching by ESL Number Does Not Return Matching Product (Mobile phone) ) in Order page Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"197817"	"Bug"	"SupplyMobile (MAUI): Take Product Issuance > Select User: Focus disappears after Navigating to Summary Cart"	"In Development"	"2/4"	"DevNotes, QANotes"	"Focus should remain active after navigation to the Summary Cart . User should be able to search for items without additional taps or actions."	"Issue: Focus disappears after Navigating to Take Summary Cart from selecting a User Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"197755"	"Bug"	"SupplyMobile (MAUI): Incorrect Device Auto-Selection on Login When User Area Has Single Handheld device"	"Committed"	"2/4"	"DevNotes, QANotes"	"The app should auto-select the handheld device that belongs to the users assigned area . When only one handheld device exists in the users area, it should be selected automatically. Devices from other areas should not appear during login"	"Issue: Incorrect Device Auto-Selection on Login When User Area Has Single Handheld device Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"191723"	"Bug"	"SupplyMobile (MAUI): Load > Location List Does Not Reappear When Navigating Back from Newly Added Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"After navigating back, the app should refresh and display the location list"	"Issue: Location List Does Not Reappear When Navigating Back from Newly Added Location in Load Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"191724"	"Bug"	"SupplyMobile (MAUI): Load > 'Add as new location' button dissappears After Returning from Newly Added Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"The Add as New Location button should remain visible and functional when navigating back to location screen"	"Issue: 'Add as new location' button dissappears After Returning from Newly Added Location in Load Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"191751"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Transaction Screen Reappears After Disconnecting ESL in Unload"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"1) Given {precondition/env/build/role} , When {user action} , Then {observable result/status/UI state} . 2) Given {edge/negative case} , When {action/input} , Then {error + no side-effect} . 3) Given {existing/related module/page/query} , When , Then it behaves as before."	"Issue: Transaction Screen Reappears After Disconnecting ESL in Unload Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"191760"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Transaction Screen Reappears After Disconnecting ESL in Unload for Product Loaded in One Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"For products loaded in a single location, when the ESL disconnects during unload, the app should Redirect to the previous screen (Product list)"	"Issue: Transaction Screen Reappears After Disconnecting ESL in Unload for Product Loaded in One Location Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"193844"	"Bug"	"SupplyMobile (MAUI): Order > Remaining Qty for Second Order Not Updating Immediately after Refill; this happens when same Product Exists in Multiple Orders"	"Branch Checkin"	"4/4"	""	"After refilling an ordered product via Stock page or skipping order selection : The Remaining Qty in the Order page should update immediately. No manual or auto-sync required to reflect changes. Qty Values should remain consistent between Stock and Order modules. Should Apply to both ESL-linked and non-ESL ordered products. Should Work across single-location and multi-location products."	"When the same product exists in two different orders, the handheld device fails to immediately update the remaining quantity for the second order after performing a refill (either through Pocket Refill or Order Refill (skipping order selection). Additional Info: Devnotes: ### Change Summary ### What Changed: Update OfflineService.cs What Was Impacted: Stock Transaction What Must Be Tested: Stock Transaction ### Peer Review ### Buddy Tested by: Winston Gubantes Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	"### Change Summary ### What Changed: Update OfflineService.cs What Was Impacted: Stock Transaction What Must Be Tested: Stock Transaction"	"After refilling an ordered product via Stock page or skipping order selection : The Remaining Qty in the Order page is now updated immediately. - PASSED  No manual or auto-sync required to reflect changes. - PASSED  Qty Values should remain consistent between Stock and Order modules. - PASSED  Should Work across single-location and multi-location products. PASSED "	"5.0.6; 5.0.6.1"	"Field"
-"194446"	"Product Backlog Item"	"SupplyMobile > Recompile app with 16 KB native library alignment"	"Committed"	"2/4"	"DevNotes, QANotes"	"When requirements are delivered"	"Purpose: Ensure our Android build aligns bundled native libraries on 16 KB boundaries so the app is compatible with newer devices, improves memory-mapped loading performance, and clears the Google Play Recompile your app with 16 KB native library alignment recommendation. Risk & Impact: If fixed: Compatible with newer devices, better native load performance, Play technical-quality warning cleared. If unfixed: Potential install/run issues on future devices with 16 KB page size; ongoing Play warnings that may affect distribution and user trust. Scope of Work: update to the latest toolchain that supports 16 KB alignment in packaging. Additional Notes: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1; MOBILE"	"Field"
-"194830"	"Bug"	"SupplyMobile (MAUI): When a product is loaded to a single location, transacting from the Location list triggers an incorrect modal prompting the user to transact in another location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"Actual Result: A confirmation modal appears prompting the user to transact in another location, even though the product is loaded in only one location. Expected Result: The confirmation modal should not appear for single-location products. After the transaction, the app should proceed normally (e.g., return to Product list or Location list based on workflow) without suggesting another location."	"Description: When a product is loaded to only one location , performing a transaction from the Location List incorrectly displays a confirmation modal that asks the user if they want to transact in another location. This behavior is incorrect because the product does not have multiple loaded locations. Pls. see video Risk/Impact: Medium  Causes confusion and suggests a wrong workflow. May mislead users into assuming additional locations exist. Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"194832"	"Bug"	"SupplyMobile (MAUI): Search Storeroom > Unable to exit the search page after performing a search or selecting a result"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"Actual Result: The search page cannot be exited after a search or after selecting a result Expected Result: The page should automatically exit when the app lands in Admin menu"	"In the Search Storeroom module, the user is unable to exit the search page after performing a search or tapping any item from the result list. pls see video Note: the search page will exit if manually exited by the user. Risk & Impact: {TBD} Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"195069"	"Bug"	"SupplyMobile (MAUI): T/R Product Issuance > Select User: Double-tap on user selection quickly skips Login Allocation and proceeds to next screen"	"Branch Checkin"	"3/4"	"QANotes"	"The app should open the Login Allocation screen exactly once , regardless of how many times the user taps Double-taps or rapid multiple taps should be debounced and should not bypass the required screen"	"Issue: Double-tap on user selection quickly skips Login Allocation and proceeds to next screen Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: Update AllocationCodeListView.xaml.cs What Was Impacted: Product Issuance Allocation Code What Must Be Tested: Take/Return Transaction ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update AllocationCodeListView.xaml.cs What Was Impacted: Product Issuance Allocation Code What Must Be Tested: Take/Return Transaction"	""	"5.0.6; 5.0.6.1"	"Field"
-"195275"	"Bug"	"SupplyMobile (MAUI): Inventory/Order Refill/Stock/Unload > Focus disappears in field and Shifts to ""Assign ESL"" After Scanning ESL with Hardware Barcode Scanner"	"Branch Checkin"	"3/4"	"DevNotes"	"After scanning an ESL in Inventory/Order refill/Stock/Unload using Hardware Barcode Scanner: Focus should not disappear and should remain on the ESL Serial Number input field Focus should not shift to any other field"	"Issue: Focus disappears in field and Shifts to ""Assign ESL"" After Scanning ESL with Hardware Barcode Scanner Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"195360"	"Bug"	"SupplyMobile (MAUI): Load > Loader displays “Product Search” when searching locations after additional load"	"Branch Checkin"	"3/4"	"DevNotes"	"After scanning an ESL in Inventory/Order refill/Stock/Unload using Hardware Barcode Scanner: Focus should not disappear and should remain on the ESL Serial Number input field Focus should not shift to any other field"	"Issue: Loader displays Product Search when searching locations after additional load Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	"The loader text should correctly reflect the action being performed. Should show Location Search"" when searching for a location and should not mention Product when the user is searching locations."	"5.0.6; 5.0.6.1"	"Field"
-"195422"	"Bug"	"SupplyMobile (MAUI): Load > Product List briefly shows after tapping OK on Restock Success"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"After tapping OK , the app should transition smoothly and directly to the Location Search screen. The Product List should not appear at any point during the transition."	"Issue: Product List briefly shows after tapping OK on Restock Success Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: Update LoadTransactionPresenter.cs What Was Impacted: Load Transaction What Must Be Tested: Load Transaction ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"189661"	"Bug"	"SupplyMobile (MAUI): Product Allocation Code > Unable to tap out of keypad"	"In Development"	"3/4"	"DevNotes"	"In Product Allocation code screens (List, Text, Number), Tapping outside the keypad should dismiss it and return focus to the main screen."	"Issue: Unable to tap out of keypad on Product Allocation screens Environment: PROD/QA Current Behavior: Expected Behavior: Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status: ## Code Review Score ## Code Correctness: Use of Best Practices: Problem-Solving Approach: Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"Field"
-"197246"	"Bug"	"SupplyMobile (MAUI): Load > Location count incorrectly displays zero when loading same product after new location load"	"Branch Checkin"	"3/4"	"QANotes"	"The app should correctly reflect the number of available locations. If locations exist, it should not show 0 Location(s) Found. The location list and header count must match."	"Issue: Location count incorrectly displays zero when loading same product after new location load Environment: PROD/QA Additional Info: Devnotes: ### Change Summary ### What Changed: Update LoadTransactionPresenter.cs What Was Impacted: Load Transaction What Must Be Tested: Load Transaction ### Peer Review ### Buddy Tested by: Winston Gubantes Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update LoadTransactionPresenter.cs What Was Impacted: Load Transaction What Must Be Tested: Load Transaction"	""	"5.0.6; 5.0.6.1; PROD BUG"	"Field"
-"197282"	"Bug"	"SupplyMobile (MAUI): TrueOnline > Dispense Prompt changes do not auto-sync while idled on Login/Storeroom/Menu pages unless Force Sync is performed"	"In Development"	"2/4"	"DevNotes, QANotes"	"For Device = TrueOnline, Dispense Prompt setting updates should auto-sync and apply without requiring manual Force Sync , regardless of which page the user is currently on (Login/Storeroom/Menu) When user proceeds to Take/Return , the prompt behavior should immediately reflect the latest configuration."	"Issue: Dispense Prompt changes do not auto-sync while idled on Login/Storeroom/Menu pages unless Force Sync is performed Environment: PROD Note: For investigation Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1; 5.0.6.2; PROD BUG"	"Field"
-"196501"	"Bug"	"SupplyMobile (MAUI): T/R Summary Cart UI > Banner message is cut when searching for a product with multiple results"	"Branch Checkin"	"3/4"	"QANotes"	"When searching for a product with multiple results, the banner message should be fully visible , properly wrapped or expanded, with no truncated text. Reference: Update text to make it shorte r ""Over 10 results; processed first 10"""	"Issue: Banner message is cut when searching for a product with multiple results in T/R Summary cart Environment: PROD/QA Additional Info: Devnotes: ### Change Summary ### What Changed: Update VimTakeReturnPage.xaml What Was Impacted: Summary cart banner message What Must Be Tested: Take/Return Transaction ### Peer Review ### Buddy Tested by: Winston Gubantes Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update VimTakeReturnPage.xaml What Was Impacted: Summary cart banner message What Must Be Tested: Take/Return Transaction"	""	"5.0.6; 5.0.6.1"	"Field"
-"196516"	"Bug"	"SupplyMobile (MAUI): Summary Cart > Get Localization: Text not translated and Missing Resource Key on prompt when trying to Submit with Mixed Valid & Invalid items"	"Branch Checkin"	"3/4"	"QANotes"	"The warning prompt should display the correct localized translation for the selected language. No missing resource key or fallback English text should appear."	"Issue: Text not translated and Missing Resource Key on prompt when trying to Submit with Mixed Valid & Invalid items Environment: PROD/QA Additional Info: Devnotes: ### Change Summary ### What Changed: Add 25407SPRT_001_MOB_Insert_LocalizationNextGen.sql What Was Impacted: Summary Cart Confirm Popup What Must Be Tested: Take/Return Summary Cart ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Add 25407SPRT_001_MOB_Insert_LocalizationNextGen.sql What Was Impacted: Summary Cart Confirm Popup What Must Be Tested: Take/Return Summary Cart"	""	"5.0.6; 5.0.6.1"	"Field"
-"196517"	"Bug"	"SupplyMobile (MAUI): Get Localization > Misaligned label and “No Limit” translation not fully shown in Product/Location tabs"	"Branch Checkin"	"4/4"	""	"1) Given {precondition/env/build/role} , When {user action} , Then {observable result/status/UI state} . 2) Given {edge/negative case} , When {action/input} , Then {error + no side-effect} . 3) Given {existing/related module/page/query} , When , Then it behaves as before."	"Issue: Misaligned label and No Limit translation not fully shown in Product/Location tabs Environment: PROD/QA Additional Info: Devnotes: ### Change Summary ### What Changed: Update LocationListViewCell.xaml and ProductListViewCell.xaml What Was Impacted: Product and Location No limit display What Must Be Tested: All Transaction ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	"### Change Summary ### What Changed: Update LocationListViewCell.xaml and ProductListViewCell.xaml What Was Impacted: Product and Location No limit display What Must Be Tested: All Transaction"	"In Product/Location tab: Labels and values should be properly aligned and fully readable in localized languages. The No Limit capacity should display the full translated text without being cut or wrapped incorrectly. No text should overlap, be clipped, or appear visually misaligned with the rest of the row."	"5.0.6; 5.0.6.1"	"Field"
-"196609"	"Bug"	"SupplyMobile (MAUI): Search Storeroom > Search field does not auto-focus after tapping search icon"	"Branch Checkin"	"4/4"	""	"When the user taps the Search icon in the Search Storeroom screen: The search text field should automatically receive focus . The cursor should be visible inside the field, and the on-screen keyboard should appear so the user can start typing immediately. No additional tap should be required to focus the search field. Please see attached video for Xamarin behavior"	"Issue: Search field does not auto-focus after tapping search icon Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: Update StoreRoomSelectPopup.xaml.cs What Was Impacted: Store search entry focus What Must Be Tested: Storeroom search ### Peer Review ### Buddy Tested by: Erwin Quijada Buddy Test Date: 12-03-2025 Buddy Test Status: Passed"	"### Change Summary ### What Changed: Update StoreRoomSelectPopup.xaml.cs What Was Impacted: Store search entry focus What Must Be Tested: Storeroom search"	""	"5.0.6; 5.0.6.1"	"Field"
-"196271"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Unable to assign ESL on Last remaining location after simultaneous unload"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"ESL assignment should still be available and fully functional for the last remaining location after simultaneous Unload transaction"	"Issue: Unable to assign ESL on Last remaining location after simultaneous unload Environment: PROD Additional Info: Devnotes: ### Change Summary ### What Changed: What Was Impacted: What Must Be Tested: ### Peer Review ### Buddy Tested by: Buddy Test Date: Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Field"
+"id"	"type"	"title"	"state"	"score"	"missing"	"acceptanceCriteria"	"description"	"devNotes"	"qaNotes"	"tags"	"reviewEvidence"
+"196703"	"Bug"	"SupplyMobile (MAUI): AdHoc Order > First submitted order does not appear immediately until user re-navigates in Order List after Force Sync"	"Branch Checkin"	"3/4"	"QANotes"	"The first submitted AdHoc Order should appear immediately in the Order List after submission.
+
+If not immediate, performing Force Sync on the Order List should be enough to refresh and display the new order.
+
+User should not be required to leave and re-enter the Order List screen just to see the new order."	"Issue: First submitted order does not appear immediately until user re-navigates in Order List after Force Sync
+Environment: PROD/QA
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update MainViewModel.cs
+
+What Was Impacted: Order Transaction
+
+What Must Be Tested: Order Transaction
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update MainViewModel.cs
+
+What Was Impacted: Order Transaction
+
+What Must Be Tested: Order Transaction"	""	"5.0.6; 5.0.6.1"	"Dev"
+"196344"	"Bug"	"SupplyMobile (MAUI): Reclaim > After successful Reclaim, Current Quantity value of location briefly appears as Pmax less the Reclaim Quantity "	"Branch Checkin"	"3/4"	"DevNotes"	"Current Quantity should correctly update to Previous Qty - Reclaim Qty immediately after Reclaim confirmation. There should be No intermediate or transient display of incorrect values (e.g., Pmax - Reclaim Qty). Behavior must be consistent across single-location and multi-location products."	"Issue: After successful Reclaim, Current Quantity value of location briefly appears as Pmax less the Reclaim Quantity
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"103256"	"Product Backlog Item"	"NextGen: Mobile : MFA > Update MFA verification screen verbiage"	"Ready for QA"	"2/4"	"DevNotes, QANotes"	"when requirements are delivered"	"Dev Notes:
+-Update verification screen verbiage
+
+### Change Summary ###
+
+What Changed:
+Summary Pages for Take and Return
+
+What Was Impacted:
+Summary Pages for Take and Return
+
+What Must Be Tested:
+Summary Pages for Take and Return Scanning a lot of barcodes
+
+### Peer Review ###
+
+Buddy Tested by: Winston Gubantes
+Buddy Test Date: 07-17-2025
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1; MFA_ph2"	"Peer"
+"197799"	"Bug"	"SupplyMobile (MAUI): T/R Product Issuance > Select User: Login Allocation Does Not Follow Correct Sequence for TrueOnline Device"	"Branch Checkin"	"3/4"	"QANotes"	"For TrueOnline device,
+Login allocation should follow the correct and defined sequence when selecting a user.
+
+The app should proceed to the correct next allocation based on allocation setup in SSIS > Users > Administration
+
+Behavior should be consistent just like TrueOnline = FALSE devices"	"Issue: Login Allocation Does Not Follow Correct Sequence for TrueOnline Device after selecting user
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update AllocationCodeViewModel.cs
+
+What Was Impacted: Allocation Code List Entry Order
+
+What Must Be Tested: Login Allocation Code Product Issuance
+
+### Peer Review ###
+
+Buddy Tested by: Winston Gubantes
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update AllocationCodeViewModel.cs
+
+What Was Impacted: Allocation Code List Entry Order
+
+What Must Be Tested: Login Allocation Code Product Issuance"	""	"5.0.6; 5.0.6.1"	"Peer"
+"197752"	"Bug"	"SupplyMobile (MAUI): Order > ESL Feature: Searching by ESL Number Does Not Return Matching Product (Mobile phone)"	"In Development"	"2/4"	"DevNotes, QANotes"	"The product associated with the entered ESL number should be returned and displayed
+
+User should be able to proceed in transaction screen using ESL-based search."	"Issue: Searching by ESL Number Does Not Return Matching Product (Mobile phone) ) in Order page
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"197817"	"Bug"	"SupplyMobile (MAUI): Take Product Issuance > Select User: Focus disappears after Navigating to Summary Cart"	"In Development"	"2/4"	"DevNotes, QANotes"	"Focus should remain active after navigation to the Summary Cart . User should be able to search for items without additional taps or actions."	"Issue: Focus disappears after Navigating to Take Summary Cart from selecting a User
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"197755"	"Bug"	"SupplyMobile (MAUI): Incorrect Device Auto-Selection on Login When User Area Has Single Handheld device"	"Committed"	"2/4"	"DevNotes, QANotes"	"The app should auto-select the handheld device that belongs to the users assigned area . When only one handheld device exists in the users area, it should be selected automatically.
+
+Devices from other areas should not appear during login"	"Issue: Incorrect Device Auto-Selection on Login When User Area Has Single Handheld device
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"191723"	"Bug"	"SupplyMobile (MAUI): Load > Location List Does Not Reappear When Navigating Back from Newly Added Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"After navigating back, the app should refresh and display the location list"	"Issue: Location List Does Not Reappear When Navigating Back from Newly Added Location in Load
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"191724"	"Bug"	"SupplyMobile (MAUI): Load > 'Add as new location' button dissappears After Returning from Newly Added Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"The Add as New Location button should remain visible and functional when navigating back to location screen"	"Issue: 'Add as new location' button dissappears After Returning from Newly Added Location in Load
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"191751"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Transaction Screen Reappears After Disconnecting ESL in Unload"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"1) Given {precondition/env/build/role} , When {user action} , Then {observable result/status/UI state} .
+2) Given {edge/negative case} , When {action/input} , Then {error + no side-effect} .
+3) Given {existing/related module/page/query} , When , Then it behaves as before."	"Issue: Transaction Screen Reappears After Disconnecting ESL in Unload
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"191760"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Transaction Screen Reappears After Disconnecting ESL in Unload for Product Loaded in One Location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"For products loaded in a single location, when the ESL disconnects during unload, the app should Redirect to the previous screen (Product list)"	"Issue: Transaction Screen Reappears After Disconnecting ESL in Unload for Product Loaded in One Location
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"193844"	"Bug"	"SupplyMobile (MAUI): Order > Remaining Qty for Second Order Not Updating Immediately after Refill; this happens when same Product Exists in Multiple Orders"	"Branch Checkin"	"4/4"	""	"After refilling an ordered product via Stock page or skipping order selection :
+The Remaining Qty in the Order page should update immediately. No manual or auto-sync required to reflect changes. Qty Values should remain consistent between Stock and Order modules. Should Apply to both ESL-linked and non-ESL ordered products. Should Work across single-location and multi-location products."	"When the same product exists in two different orders, the handheld device fails to immediately update the remaining quantity for the second order after performing a refill (either through Pocket Refill or Order Refill (skipping order selection).
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update OfflineService.cs
+
+What Was Impacted: Stock Transaction
+
+What Must Be Tested: Stock Transaction
+
+### Peer Review ###
+
+Buddy Tested by: Winston Gubantes
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	"### Change Summary ###
+
+What Changed: Update OfflineService.cs
+
+What Was Impacted: Stock Transaction
+
+What Must Be Tested: Stock Transaction"	"After refilling an ordered product via Stock page or skipping order selection :
+The Remaining Qty in the Order page is now updated immediately. - PASSED  No manual or auto-sync required to reflect changes. - PASSED  Qty Values should remain consistent between Stock and Order modules. - PASSED  Should Work across single-location and multi-location products. PASSED "	"5.0.6; 5.0.6.1"	"Peer"
+"194446"	"Product Backlog Item"	"SupplyMobile > Recompile app with 16 KB native library alignment"	"Committed"	"2/4"	"DevNotes, QANotes"	"When requirements are delivered"	"Purpose:
+Ensure our Android build aligns bundled native libraries on 16 KB boundaries so the app is compatible with newer devices, improves memory-mapped loading performance, and clears the Google Play Recompile your app with 16 KB native library alignment recommendation.
+
+Risk & Impact:
+
+If fixed: Compatible with newer
+devices, better native load performance, Play technical-quality warning
+cleared.
+If unfixed: Potential install/run issues
+on future devices with 16 KB page size; ongoing Play warnings that may
+affect distribution and user trust.
+
+Scope of Work:
+update to the latest toolchain that supports 16 KB alignment in packaging.
+
+Additional Notes:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1; MOBILE"	"None"
+"194830"	"Bug"	"SupplyMobile (MAUI): When a product is loaded to a single location, transacting from the Location list triggers an incorrect modal prompting the user to transact in another location"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"Actual Result:
+A confirmation modal appears prompting the user to transact in another location, even though the product is loaded in only one location.
+
+Expected Result:
+The confirmation modal should not appear for single-location products. After the transaction, the app should proceed normally (e.g., return to Product list or Location list based on workflow) without suggesting another location."	"Description: When a product is loaded to only one location , performing a transaction from the Location List incorrectly displays a confirmation modal that asks the user if they want to transact in another location. This behavior is incorrect because the product does not have multiple loaded locations.
+
+Pls. see video
+
+Risk/Impact:
+
+Medium  Causes confusion and suggests a wrong workflow. May mislead users into assuming additional locations exist.
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"194832"	"Bug"	"SupplyMobile (MAUI): Search Storeroom > Unable to exit the search page after performing a search or selecting a result"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"Actual Result: The search page cannot be exited after a search or after selecting a result
+
+Expected Result:
+The page should automatically exit when the app lands in Admin menu"	"In the Search Storeroom module, the user is unable to exit the search page after performing a search or tapping any item from the result list. pls see video
+
+Note: the search page will exit if manually exited by the user.
+Risk & Impact:
+{TBD}
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"195069"	"Bug"	"SupplyMobile (MAUI): T/R Product Issuance > Select User: Double-tap on user selection quickly skips Login Allocation and proceeds to next screen"	"Branch Checkin"	"3/4"	"QANotes"	"The app should open the Login Allocation screen exactly once , regardless of how many times the user taps
+
+Double-taps or rapid multiple taps should be debounced and should not bypass the required screen"	"Issue: Double-tap on user selection quickly skips Login Allocation and proceeds to next screen
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update AllocationCodeListView.xaml.cs
+
+What Was Impacted: Product Issuance Allocation Code
+
+What Must Be Tested: Take/Return Transaction
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update AllocationCodeListView.xaml.cs
+
+What Was Impacted: Product Issuance Allocation Code
+
+What Must Be Tested: Take/Return Transaction"	""	"5.0.6; 5.0.6.1"	"Dev"
+"195275"	"Bug"	"SupplyMobile (MAUI): Inventory/Order Refill/Stock/Unload > Focus disappears in field and Shifts to ""Assign ESL"" After Scanning ESL with Hardware Barcode Scanner"	"Branch Checkin"	"3/4"	"DevNotes"	"After scanning an ESL in Inventory/Order refill/Stock/Unload using Hardware Barcode Scanner: Focus should not disappear and should remain on the ESL Serial Number input field Focus should not shift to any other field"	"Issue: Focus disappears in field and Shifts to ""Assign ESL"" After Scanning ESL with Hardware Barcode Scanner
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"195360"	"Bug"	"SupplyMobile (MAUI): Load > Loader displays “Product Search” when searching locations after additional load"	"Branch Checkin"	"3/4"	"DevNotes"	"After scanning an ESL in Inventory/Order refill/Stock/Unload using Hardware Barcode Scanner: Focus should not disappear and should remain on the ESL Serial Number input field Focus should not shift to any other field"	"Issue: Loader displays Product Search when searching locations after additional load
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	"The loader text should correctly reflect the action being performed.
+
+Should show Location Search"" when searching for a location and should not mention Product when the user is searching locations."	"5.0.6; 5.0.6.1"	"None"
+"195422"	"Bug"	"SupplyMobile (MAUI): Load > Product List briefly shows after tapping OK on Restock Success"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"After tapping OK , the app should transition smoothly and directly to the Location Search screen.
+
+The Product List should not appear at any point during the transition."	"Issue: Product List briefly shows after tapping OK on Restock Success
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update LoadTransactionPresenter.cs
+
+What Was Impacted: Load Transaction
+
+What Must Be Tested: Load Transaction
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"Dev"
+"189661"	"Bug"	"SupplyMobile (MAUI): Product Allocation Code > Unable to tap out of keypad"	"In Development"	"3/4"	"DevNotes"	"In Product Allocation code screens (List, Text, Number),
+
+Tapping outside the keypad should dismiss it and return focus to the main screen."	"Issue: Unable to tap out of keypad on Product Allocation screens
+
+Environment: PROD/QA
+
+Current Behavior:
+
+Expected Behavior:
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:
+
+## Code Review Score ##
+Code Correctness:
+Use of Best Practices:
+Problem-Solving Approach:
+Readability & Maintainability:"	""	""	"5.0.6; 5.0.6.1"	"None"
+"197246"	"Bug"	"SupplyMobile (MAUI): Load > Location count incorrectly displays zero when loading same product after new location load"	"Branch Checkin"	"3/4"	"QANotes"	"The app should correctly reflect the number of available locations.
+
+If locations exist, it should not show 0 Location(s) Found.
+
+The location list and header count must match."	"Issue: Location count incorrectly displays zero when loading same product after new location load
+
+Environment: PROD/QA
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update LoadTransactionPresenter.cs
+
+What Was Impacted: Load Transaction
+
+What Must Be Tested: Load Transaction
+
+### Peer Review ###
+
+Buddy Tested by: Winston Gubantes
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update LoadTransactionPresenter.cs
+
+What Was Impacted: Load Transaction
+
+What Must Be Tested: Load Transaction"	""	"5.0.6; 5.0.6.1; PROD BUG"	"Peer"
+"197282"	"Bug"	"SupplyMobile (MAUI): TrueOnline > Dispense Prompt changes do not auto-sync while idled on Login/Storeroom/Menu pages unless Force Sync is performed"	"In Development"	"2/4"	"DevNotes, QANotes"	"For Device = TrueOnline,
+Dispense Prompt setting updates should auto-sync and apply without requiring manual Force Sync , regardless of which page the user is currently on (Login/Storeroom/Menu)
+
+When user proceeds to Take/Return , the prompt behavior should immediately reflect the latest configuration."	"Issue: Dispense Prompt changes do not auto-sync while idled on Login/Storeroom/Menu pages unless Force Sync is performed
+
+Environment: PROD
+
+Note: For investigation
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1; 5.0.6.2; PROD BUG"	"None"
+"196501"	"Bug"	"SupplyMobile (MAUI): T/R Summary Cart UI > Banner message is cut when searching for a product with multiple results"	"Branch Checkin"	"3/4"	"QANotes"	"When searching for a product with multiple results,
+
+the banner message should be fully visible , properly wrapped or expanded, with no truncated text.
+
+Reference: Update text to make it shorte r
+
+""Over 10 results; processed first 10"""	"Issue: Banner message is cut when searching for a product with multiple results in T/R Summary cart
+Environment: PROD/QA
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update VimTakeReturnPage.xaml
+
+What Was Impacted: Summary cart banner message
+
+What Must Be Tested: Take/Return Transaction
+
+### Peer Review ###
+
+Buddy Tested by: Winston Gubantes
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update VimTakeReturnPage.xaml
+
+What Was Impacted: Summary cart banner message
+
+What Must Be Tested: Take/Return Transaction"	""	"5.0.6; 5.0.6.1"	"Peer"
+"196516"	"Bug"	"SupplyMobile (MAUI): Summary Cart > Get Localization: Text not translated and Missing Resource Key on prompt when trying to Submit with Mixed Valid & Invalid items"	"Branch Checkin"	"3/4"	"QANotes"	"The warning prompt should display the correct localized translation for the selected language.
+
+No missing resource key or fallback English text should appear."	"Issue: Text not translated and Missing Resource Key on prompt when trying to Submit with Mixed Valid & Invalid items
+Environment: PROD/QA
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Add 25407SPRT_001_MOB_Insert_LocalizationNextGen.sql
+
+What Was Impacted: Summary Cart Confirm Popup
+
+What Must Be Tested: Take/Return Summary Cart
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Add 25407SPRT_001_MOB_Insert_LocalizationNextGen.sql
+
+What Was Impacted: Summary Cart Confirm Popup
+
+What Must Be Tested: Take/Return Summary Cart"	""	"5.0.6; 5.0.6.1"	"Dev"
+"196517"	"Bug"	"SupplyMobile (MAUI): Get Localization > Misaligned label and “No Limit” translation not fully shown in Product/Location tabs"	"Branch Checkin"	"4/4"	""	"1) Given {precondition/env/build/role} , When {user action} , Then {observable result/status/UI state} .
+2) Given {edge/negative case} , When {action/input} , Then {error + no side-effect} .
+3) Given {existing/related module/page/query} , When , Then it behaves as before."	"Issue: Misaligned label and No Limit translation not fully shown in Product/Location tabs
+Environment: PROD/QA
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update LocationListViewCell.xaml and
+ProductListViewCell.xaml
+
+What Was Impacted: Product and Location No limit display
+
+What Must Be Tested: All Transaction
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	"### Change Summary ###
+
+What Changed: Update LocationListViewCell.xaml and
+ProductListViewCell.xaml
+
+What Was Impacted: Product and Location No limit display
+
+What Must Be Tested: All Transaction"	"In Product/Location tab:
+Labels and values should be properly aligned and fully readable in localized languages.
+
+The No Limit capacity should display the full translated text without being cut or wrapped incorrectly.
+
+No text should overlap, be clipped, or appear visually misaligned with the rest of the row."	"5.0.6; 5.0.6.1"	"Dev"
+"196609"	"Bug"	"SupplyMobile (MAUI): Search Storeroom > Search field does not auto-focus after tapping search icon"	"Branch Checkin"	"4/4"	""	"When the user taps the Search icon in the Search Storeroom screen:
+
+The search text field should automatically receive focus .
+
+The cursor should be visible inside the field, and the on-screen keyboard should appear so the user can start typing immediately.
+
+No additional tap should be required to focus the search field.
+
+Please see attached video for Xamarin behavior"	"Issue: Search field does not auto-focus after tapping search icon
+
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed: Update StoreRoomSelectPopup.xaml.cs
+
+What Was Impacted: Store search entry focus
+
+What Must Be Tested: Storeroom search
+
+### Peer Review ###
+
+Buddy Tested by: Erwin Quijada
+Buddy Test Date: 12-03-2025
+Buddy Test Status: Passed"	"### Change Summary ###
+
+What Changed: Update StoreRoomSelectPopup.xaml.cs
+
+What Was Impacted: Store search entry focus
+
+What Must Be Tested: Storeroom search"	""	"5.0.6; 5.0.6.1"	"Peer"
+"196271"	"Bug"	"SupplyMobile (MAUI): ESL Feature > Unload: Unable to assign ESL on Last remaining location after simultaneous unload"	"Branch Checkin"	"2/4"	"DevNotes, QANotes"	"ESL assignment should still be available and fully functional for the last remaining location after simultaneous Unload transaction"	"Issue: Unable to assign ESL on Last remaining location after simultaneous unload
+Environment: PROD
+
+Additional Info:
+
+Devnotes:
+
+### Change Summary ###
+
+What Changed:
+
+What Was Impacted:
+
+What Must Be Tested:
+
+### Peer Review ###
+
+Buddy Tested by:
+Buddy Test Date:
+Buddy Test Status:"	""	""	"5.0.6; 5.0.6.1"	"None"

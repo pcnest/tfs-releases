@@ -9,6 +9,7 @@ export const ApiRowSchema = z.object({
   type: z.string().min(1),
   title: z.string(),
   state: z.string(),
+  severity: z.string().nullish(),
   tags: z.string().optional(),
   acceptanceCriteria: z.string().optional(),
   description: z.string().optional(),
@@ -35,6 +36,7 @@ export interface DbRow {
   wi_type: string;
   title: string;
   state: string;
+  severity?: string;
   tags?: string;
   acceptance_criteria?: string;
   description?: string;
@@ -67,6 +69,7 @@ export function mapApiRowToDb(apiRow: ApiRow): DbRow {
     wi_type: apiRow.type,
     title: apiRow.title,
     state: apiRow.state,
+    severity: apiRow.severity,
     tags: apiRow.tags,
     acceptance_criteria: apiRow.acceptanceCriteria,
     description: apiRow.description,
@@ -77,3 +80,27 @@ export function mapApiRowToDb(apiRow: ApiRow): DbRow {
     review_evidence: apiRow.reviewEvidence,
   };
 }
+
+/**
+ * Draft approval request input options
+ */
+export const DraftApprovalInputSchema = z.object({
+  maxHighlights: z.number().int().min(1).max(10).optional().default(6),
+  severityKeywords: z.array(z.string()).optional().default(['High', 'Critical']),
+});
+
+export type DraftApprovalInput = z.infer<typeof DraftApprovalInputSchema>;
+
+/**
+ * Draft approval request output
+ */
+export const DraftApprovalOutputSchema = z.object({
+  purpose: z.string(),
+  highlights: z.array(z.string()),
+  primaryRisk: z.string(),
+  blastRadius: z.string(),
+  buildReadiness: z.string(),
+});
+
+export type DraftApprovalOutput = z.infer<typeof DraftApprovalOutputSchema>;
+

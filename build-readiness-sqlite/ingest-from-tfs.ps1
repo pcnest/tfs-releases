@@ -1,8 +1,8 @@
 # ==== CONFIG ====
 $TfsBaseUrl = "https://remote.spdev.us/tfs/SupplyPro.Applications"
 $Project = "SupplyPro.Core"
-$ReleaseID = "70.18.4.20"  # UPDATE THIS for each release
-$WiqlFilterTag = "18.4.20"     # or use IterationPath/AreaPath filter
+$ReleaseID = "5.0.6.1"  # UPDATE THIS for each release
+$WiqlFilterTag = "5.0.6.1"     # or use IterationPath/AreaPath filter
 $Pat = "x34cxkcnvd7zuxw6egqyg2yyf6frsbw3vjjnmh37xgar2aopxwqa"
 
 # API Config for SQLite app
@@ -52,32 +52,70 @@ function Test-NotEmpty($v) { return -not [string]::IsNullOrWhiteSpace($v) }
 
 function Strip-Html($html) {
   if ([string]::IsNullOrWhiteSpace($html)) { return "" }
-  # Remove HTML tags and decode entities
-  $text = $html -replace '<[^>]+>', ' '
+  
+  # Convert common HTML line break elements to newlines BEFORE stripping tags
+  $text = $html -replace '<br\s*/?>', "`n"
+  $text = $text -replace '</p>', "`n`n"
+  $text = $text -replace '<p[^>]*>', ''
+  $text = $text -replace '</div>', "`n"
+  
+  # Remove remaining HTML tags
+  $text = $text -replace '<[^>]+>', ' '
+  
+  # Decode HTML entities
   $text = $text -replace '&nbsp;', ' '
   $text = $text -replace '&amp;', '&'
   $text = $text -replace '&lt;', '<'
   $text = $text -replace '&gt;', '>'
   $text = $text -replace '&quot;', '"'
   $text = $text -replace '&apos;', "'"
-  # Remove control characters and normalize whitespace
-  $text = $text -replace '[\r\n\t]', ' '
-  $text = $text -replace '\s+', ' '
+  
+  # Clean up excessive whitespace on each line, but preserve line breaks
+  $text = $text -replace '\t', ' '
+  $text = $text -replace ' +', ' '
+  $text = $text -replace ' *\n *', "`n"
+  $text = $text -replace '\n{3,}', "`n`n"
+  
+  # Trim each line and remove completely empty lines at start/end
   $text = $text.Trim()
-  # Remove any remaining problematic characters
-  $text = $text -replace '[^\x20-\x7E\x80-\xFF]', ''
+  
+  # Remove any remaining problematic characters except newlines
+  $text = $text -replace '[^\x20-\x7E\x80-\xFF\r\n]', ''
+  
   return $text
 }
 
 function Detect-ReviewEvidence($f) {
   # Check if AC or Description contain review evidence
-  $acText = Strip-Html $f."Microsoft.VSTS.Common.AcceptanceCriteria"
+  $devText = Strip-Html $f."SupplyPro.SPApplication.DevNotes"
   $descText = Strip-Html $f."System.Description"
   
   # Check for common review indicators
-  if ($acText -match '(review|reviewed|QA|validated|tested)' -or 
-    $descText -match '(review|reviewed|QA|validated|tested)') {
-    return "Field"
+  # if ($devText -match '(review|reviewed|QA|validated|tested)' -or 
+  #   $descText -match '(review|reviewed|QA|validated|tested)') {
+  #   return "Field"
+  # }
+  
+  # Check for filled-out Peer Review section (has values after colons)
+  # Pattern: "Buddy Tested by: [something]" on the same line
+  if ($devText -match 'Buddy Tested by:[^\r\n]*\S' -or 
+    $devText -match 'Buddy Test Date:[^\r\n]*\S' -or 
+    $devText -match 'Buddy Test Status:[^\r\n]*\S' -or
+    $descText -match 'Buddy Tested by:[^\r\n]*\S' -or 
+    $descText -match 'Buddy Test Date:[^\r\n]*\S' -or 
+    $descText -match 'Buddy Test Status:[^\r\n]*\S') {
+    return "Peer"
+  }
+  
+  # Check for filled-out Change Summary section (developer notes)
+  # Pattern: "What Changed: [something]" on the same line
+  if ($devText -match 'What Changed:[^\r\n]*\S' -or 
+    $devText -match 'What Was Impacted:[^\r\n]*\S' -or 
+    $devText -match 'What Must Be Tested:[^\r\n]*\S' -or
+    $descText -match 'What Changed:[^\r\n]*\S' -or 
+    $descText -match 'What Was Impacted:[^\r\n]*\S' -or 
+    $descText -match 'What Must Be Tested:[^\r\n]*\S') {
+    return "Dev"
   }
   
   # Check if there are related work items (simple heuristic)
@@ -110,6 +148,7 @@ function New-ApiRow($wi) {
     type               = $f."System.WorkItemType"
     title              = $f."System.Title"
     state              = $f."System.State"
+    severity           = $f."Microsoft.VSTS.Common.Severity"
     tags               = $f."System.Tags"
     acceptanceCriteria = Strip-Html $f."Microsoft.VSTS.Common.AcceptanceCriteria"
     description        = Strip-Html $f."System.Description"

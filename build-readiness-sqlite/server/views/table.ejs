@@ -58,7 +58,7 @@
 
         <!-- Search and Actions -->
         <div class="flex flex-col md:flex-row gap-3">
-          <input type="text" id="searchInput" placeholder="Search by title, type, state, or tags..."
+          <input type="text" id="searchInput" placeholder="Search by title, type, severity, state, or tags..."
             class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
           <button onclick="copyToClipboard('csv')"
             class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
@@ -113,19 +113,18 @@
                   <th class="text-left">WI</th>
                   <th class="text-left">Type</th>
                   <th class="text-left">Title</th>
+                  <th class="text-left">Severity</th>
                   <th class="text-left">State</th>
                   <th class="text-center">Score</th>
-                  <th class="text-left">Missing</th>
                   <th class="text-center">DevNotes?</th>
                   <th class="text-center">QANotes?</th>
-                  <th class="text-left">Tags</th>
                   <th class="text-left">Review</th>
                 </tr>
               </thead>
               <tbody>
                 <% rows.forEach(function(row, index) { %>
                   <tr class="data-row cursor-pointer hover:bg-blue-50"
-                    data-search="<%= [row.title, row.wi_type, row.state, row.tags || ''].join(' ').toLowerCase() %>"
+                    data-search="<%= [row.title, row.wi_type, row.state, row.severity || '', row.tags || ''].join(' ').toLowerCase() %>"
                     data-details-id="details-<%= index %>">
                     <td class="text-center">
                       <span class="expand-icon text-gray-500">▶</span>
@@ -138,6 +137,21 @@
                     </td>
                     <td class="max-w-md truncate" title="<%= row.title %>">
                       <%= row.title %>
+                    </td>
+                    <td class="text-sm">
+                      <% if (row.severity) { %>
+                        <span class="px-2 py-1 rounded text-xs font-medium <%= 
+                          row.severity === 'Critical' || row.severity === '1 - Critical' ? 'bg-red-100 text-red-800' :
+                          row.severity === 'High' || row.severity === '2 - High' ? 'bg-orange-100 text-orange-800' :
+                          row.severity === 'Medium' || row.severity === '3 - Medium' ? 'bg-yellow-100 text-yellow-800' :
+                          row.severity === 'Low' || row.severity === '4 - Low' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        %>">
+                          <%= row.severity %>
+                        </span>
+                        <% } else { %>
+                          <span class="text-gray-400">-</span>
+                          <% } %>
                     </td>
                     <td>
                       <%= row.state %>
@@ -152,9 +166,6 @@
                           <span class="text-gray-400">-</span>
                           <% } %>
                     </td>
-                    <td class="text-sm text-gray-600">
-                      <%= row.missing || '-' %>
-                    </td>
                     <td class="text-center">
                       <% if (row.dev_notes) { %>
                         <span class="checkmark">✓</span>
@@ -168,9 +179,6 @@
                         <% } else { %>
                           <span class="text-gray-300">-</span>
                           <% } %>
-                    </td>
-                    <td class="text-sm text-gray-600">
-                      <%= row.tags || '-' %>
                     </td>
                     <td class="text-sm">
                       <% if (row.review_evidence) { %>
@@ -188,12 +196,12 @@
                   </tr>
                   <!-- Expandable Details Row -->
                   <tr id="details-<%= index %>" class="details-row" style="display: none;">
-                    <td colspan="11" class="bg-gray-50 p-4">
+                    <td colspan="12" class="bg-gray-50 p-4">
                       <div class="grid grid-cols-1 gap-4 text-sm">
                         <% if (row.acceptance_criteria) { %>
                           <div>
                             <strong class="text-blue-700">Acceptance Criteria:</strong>
-                            <div class="mt-1 p-2 bg-white rounded border">
+                            <div class="mt-1 p-2 bg-white rounded border whitespace-pre-line">
                               <%= row.acceptance_criteria %>
                             </div>
                           </div>
@@ -201,7 +209,7 @@
                             <% if (row.description) { %>
                               <div>
                                 <strong class="text-blue-700">Description:</strong>
-                                <div class="mt-1 p-2 bg-white rounded border">
+                                <div class="mt-1 p-2 bg-white rounded border whitespace-pre-line">
                                   <%= row.description %>
                                 </div>
                               </div>
@@ -209,7 +217,7 @@
                                 <% if (row.dev_notes) { %>
                                   <div>
                                     <strong class="text-green-700">Dev Notes:</strong>
-                                    <div class="mt-1 p-2 bg-white rounded border">
+                                    <div class="mt-1 p-2 bg-white rounded border whitespace-pre-line">
                                       <%= row.dev_notes %>
                                     </div>
                                   </div>
@@ -217,7 +225,7 @@
                                     <% if (row.qa_notes) { %>
                                       <div>
                                         <strong class="text-purple-700">QA Notes:</strong>
-                                        <div class="mt-1 p-2 bg-white rounded border">
+                                        <div class="mt-1 p-2 bg-white rounded border whitespace-pre-line">
                                           <%= row.qa_notes %>
                                         </div>
                                       </div>
@@ -236,7 +244,460 @@
         </div>
         <% } %>
 
+          <!-- Approval Request Section -->
+          <% if (rows.length> 0) { %>
+            <div class="bg-white rounded-lg shadow-md p-6 mt-6">
+              <h2 class="text-2xl font-bold text-gray-900 mb-6">Approval Request</h2>
+
+              <!-- Build Readiness Assessment (AI-Generated) -->
+              <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg p-4 mb-6">
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 text-2xl">📊</div>
+                  <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Build Readiness Assessment</h3>
+                    <div id="buildReadinessContent" class="text-sm text-gray-700 leading-relaxed">
+                      <span class="text-gray-400 italic">Click "Draft with AI" to generate readiness
+                        assessment...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <form id="approvalForm" class="space-y-6">
+                <!-- Project Name and Release Manager -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">
+                      Project Name <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="projectName" name="projectName" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  </div>
+                  <div>
+                    <label for="releaseManager" class="block text-sm font-medium text-gray-700 mb-1">
+                      Release Manager <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="releaseManager" name="releaseManager" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  </div>
+                </div>
+
+                <!-- Purpose -->
+                <div>
+                  <label for="purpose" class="block text-sm font-medium text-gray-700 mb-1">
+                    Purpose
+                  </label>
+                  <textarea id="purpose" name="purpose" rows="2"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Brief description of business value or key defects fixed..."></textarea>
+                </div>
+
+                <!-- Highlights -->
+                <div>
+                  <label for="highlights" class="block text-sm font-medium text-gray-700 mb-1">
+                    Highlights
+                  </label>
+                  <textarea id="highlights" name="highlights" rows="6"
+                    class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Key improvements and fixes (one per line)..."></textarea>
+                </div>
+
+                <!-- Release Window Group -->
+                <div class="border-t pt-4">
+                  <h3 class="text-lg font-semibold text-gray-800 mb-3">Release Window</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label for="releaseWindow" class="block text-sm font-medium text-gray-700 mb-1">
+                        Release Window Date <span class="text-red-500">*</span>
+                      </label>
+                      <input type="date" id="releaseWindow" name="releaseWindow" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                    </div>
+                    <div>
+                      <label for="releaseEnv" class="block text-sm font-medium text-gray-700 mb-1">
+                        Release Env <span class="text-red-500">*</span>
+                      </label>
+                      <select id="releaseEnv" name="releaseEnv" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select environment</option>
+                        <option value="QA">QA</option>
+                        <option value="Prod">Prod</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label for="changeType" class="block text-sm font-medium text-gray-700 mb-1">
+                        Release Change Type <span class="text-red-500">*</span>
+                      </label>
+                      <select id="changeType" name="changeType" required
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select type</option>
+                        <option value="standard">Standard</option>
+                        <option value="emergency">Emergency</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Scope (hidden field for email only) -->
+                <div class="hidden">
+                  <textarea id="scope" name="scope" rows="3"></textarea>
+                </div>
+
+                <!-- Risk & Impact Group -->
+                <div class="border-t pt-4">
+                  <h3 class="text-lg font-semibold text-gray-800 mb-3">Risk & Impact</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label for="primaryRisk" class="block text-sm font-medium text-gray-700 mb-1">
+                        Primary Risk
+                      </label>
+                      <textarea id="primaryRisk" name="primaryRisk" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="What could go wrong if delayed or rejected..."></textarea>
+                    </div>
+                    <div>
+                      <label for="blastRadius" class="block text-sm font-medium text-gray-700 mb-1">
+                        Blast Radius
+                      </label>
+                      <textarea id="blastRadius" name="blastRadius" rows="3"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        placeholder="Users/systems/modules affected..."></textarea>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="flex flex-wrap gap-3 pt-4 border-t">
+                  <button type="button" id="btnDraftAi"
+                    class="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 font-medium shadow-md flex items-center gap-2">
+                    <span id="draftBtnText">✨ Draft with AI</span>
+                    <span id="draftSpinner" class="hidden">
+                      <svg class="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none"
+                        viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                        </circle>
+                        <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                        </path>
+                      </svg>
+                    </span>
+                  </button>
+                  <button type="button" id="btnClearDraft"
+                    class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+                    Clear Draft
+                  </button>
+                  <button type="button" id="btnCopyEmail"
+                    class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-medium">
+                    📧 Copy Email
+                  </button>
+                </div>
+
+                <!-- Status Messages -->
+                <div id="draftStatus" class="hidden"></div>
+              </form>
+            </div>
+            <% } %>
+
   </div>
+
+  <!-- Email Modal -->
+  <div id="emailModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+      <div class="p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-900">Email Preview</h3>
+          <button id="btnCloseModalX" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+        </div>
+        <div id="emailContent"
+          class="bg-gray-50 p-4 rounded-lg border border-gray-300 whitespace-pre-wrap text-sm font-mono mb-4 max-h-96 overflow-y-auto">
+        </div>
+        <div class="flex gap-3">
+          <button id="btnCopyEmailClipboard"
+            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium">
+            Copy to Clipboard
+          </button>
+          <button id="btnCloseModal"
+            class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 font-medium">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Auth token from server
+    const AUTH_TOKEN = '<%= authToken %>';
+    const RELEASE_ID = '<%= releaseId %>';
+
+    // TFS configuration from server
+    const TFS_BASE = '<%= tfsBase %>';
+    const TFS_PROJECT = '<%= tfsProject %>';
+
+    // Release rows data for email generation
+    const RELEASE_ROWS = <%- JSON.stringify(rows.map(r => ({
+      wi_id: r.wi_id,
+      wi_type: r.wi_type,
+      title: r.title,
+      state: r.state
+    }))) %>;
+
+    // Track dirty state for textareas
+    const dirtyFields = {
+      purpose: false,
+      highlights: false,
+      primaryRisk: false,
+      blastRadius: false
+    };
+
+    // Mark fields as dirty when user types
+    ['purpose', 'highlights', 'primaryRisk', 'blastRadius'].forEach(fieldId => {
+      const field = document.getElementById(fieldId);
+      if (field) {
+        field.addEventListener('input', () => {
+          dirtyFields[fieldId] = true;
+        });
+      }
+    });
+
+    // Draft with AI button handler
+    const btnDraftAi = document.getElementById('btnDraftAi');
+    const draftBtnText = document.getElementById('draftBtnText');
+    const draftSpinner = document.getElementById('draftSpinner');
+    const draftStatus = document.getElementById('draftStatus');
+
+    if (btnDraftAi) {
+      btnDraftAi.addEventListener('click', async () => {
+        // Check if any AI-populated fields are dirty
+        const dirtyFieldsList = Object.keys(dirtyFields).filter(k => dirtyFields[k]);
+        if (dirtyFieldsList.length > 0) {
+          const confirmOverwrite = confirm(
+            `You have made edits to: ${dirtyFieldsList.join(', ')}.\n\n` +
+            `AI draft will overwrite these fields. Continue?`
+          );
+          if (!confirmOverwrite) {
+            return;
+          }
+        }
+
+        // Disable button and show spinner
+        btnDraftAi.disabled = true;
+        draftBtnText.textContent = 'Drafting...';
+        draftSpinner.classList.remove('hidden');
+        draftStatus.classList.add('hidden');
+
+        try {
+          const response = await fetch(`/api/draft-approval/${RELEASE_ID}`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${AUTH_TOKEN}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              maxHighlights: 7,
+              severityKeywords: ['High', 'Critical']
+            })
+          });
+
+          if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || `HTTP ${response.status}`);
+          }
+
+          const data = await response.json();
+
+          // Populate fields
+          document.getElementById('purpose').value = data.purpose || '';
+          document.getElementById('highlights').value = data.highlights.join('\n') || '';
+          document.getElementById('primaryRisk').value = data.primaryRisk || '';
+          document.getElementById('blastRadius').value = data.blastRadius || '';
+
+          // Populate Build Readiness Assessment (read-only display)
+          const buildReadinessContent = document.getElementById('buildReadinessContent');
+          if (buildReadinessContent && data.buildReadiness) {
+            buildReadinessContent.textContent = data.buildReadiness;
+            buildReadinessContent.classList.remove('text-gray-400', 'italic');
+            buildReadinessContent.classList.add('text-gray-800', 'font-medium');
+          }
+
+          // Reset dirty flags since we just populated
+          dirtyFields.purpose = false;
+          dirtyFields.highlights = false;
+          dirtyFields.primaryRisk = false;
+          dirtyFields.blastRadius = false;
+
+          // Show success message
+          draftStatus.className = 'p-3 bg-green-50 border border-green-200 rounded-lg text-green-800';
+          draftStatus.textContent = '✓ Draft generated successfully!';
+          draftStatus.classList.remove('hidden');
+
+        } catch (error) {
+          console.error('Draft error:', error);
+          draftStatus.className = 'p-3 bg-red-50 border border-red-200 rounded-lg text-red-800';
+          draftStatus.textContent = `✗ Error: ${error.message}`;
+          draftStatus.classList.remove('hidden');
+        } finally {
+          // Re-enable button
+          btnDraftAi.disabled = false;
+          draftBtnText.textContent = '✨ Draft with AI';
+          draftSpinner.classList.add('hidden');
+        }
+      });
+    }
+
+    // Clear Draft button handler
+    const btnClearDraft = document.getElementById('btnClearDraft');
+    if (btnClearDraft) {
+      btnClearDraft.addEventListener('click', () => {
+        if (confirm('Clear all draft content in textareas and build readiness assessment?')) {
+          document.getElementById('purpose').value = '';
+          document.getElementById('highlights').value = '';
+          document.getElementById('scope').value = '';
+          document.getElementById('primaryRisk').value = '';
+          document.getElementById('blastRadius').value = '';
+
+          // Reset Build Readiness Assessment
+          const buildReadinessContent = document.getElementById('buildReadinessContent');
+          if (buildReadinessContent) {
+            buildReadinessContent.textContent = 'Click "Draft with AI" to generate readiness assessment...';
+            buildReadinessContent.classList.add('text-gray-400', 'italic');
+            buildReadinessContent.classList.remove('text-gray-800', 'font-medium');
+          }
+
+          // Reset dirty flags
+          Object.keys(dirtyFields).forEach(k => dirtyFields[k] = false);
+        }
+      });
+    }
+
+    // Copy Email button handler
+    const btnCopyEmail = document.getElementById('btnCopyEmail');
+    const emailModal = document.getElementById('emailModal');
+    const emailContent = document.getElementById('emailContent');
+
+    if (btnCopyEmail) {
+      btnCopyEmail.addEventListener('click', () => {
+        // Build email body from form fields
+        const projectName = document.getElementById('projectName').value || '[Project Name]';
+        const releaseManager = document.getElementById('releaseManager').value || '[Release Manager]';
+        const purpose = document.getElementById('purpose').value || '[Purpose]';
+        const highlights = document.getElementById('highlights').value || '[Highlights]';
+        const releaseWindow = document.getElementById('releaseWindow').value || '[Date]';
+        const releaseEnv = document.getElementById('releaseEnv').value || '[Env]';
+        const changeType = document.getElementById('changeType').value || '[Type]';
+        const scope = document.getElementById('scope').value || '[Scope]';
+        const primaryRisk = document.getElementById('primaryRisk').value || '[Primary Risk]';
+        const blastRadius = document.getElementById('blastRadius').value || '[Blast Radius]';
+
+        // Group tickets by type for scope section
+        const bugs = RELEASE_ROWS.filter(r => r.wi_type.toLowerCase().includes('bug'));
+        const pbis = RELEASE_ROWS.filter(r => !r.wi_type.toLowerCase().includes('bug'));
+
+        // Build TFS work item URL from environment variables
+        const tfsItemUrl = `${TFS_BASE}/${TFS_PROJECT}/_workitems/edit`;
+
+        let scopeSection = 'Bugs:\n';
+        if (bugs.length > 0) {
+          bugs.forEach(bug => {
+            scopeSection += `<a href="${tfsItemUrl}/${bug.wi_id}">${bug.wi_id}</a> - Bug: ${bug.title}\n\n`;
+          });
+        } else {
+          scopeSection += 'None\n\n';
+        }
+
+        scopeSection += 'PBIs:\n';
+        if (pbis.length > 0) {
+          pbis.forEach(pbi => {
+            scopeSection += `<a href="${tfsItemUrl}/${pbi.wi_id}">${pbi.wi_id}</a> - ${pbi.wi_type}: ${pbi.title}\n\n`;
+          });
+        } else {
+          scopeSection += 'None\n';
+        }
+
+        const emailBody = `Subject: Release Approval Request - ${projectName} (${RELEASE_ID})
+
+Hi ${releaseManager},
+
+I'm requesting approval to schedule a ${changeType} build/deployment for ${RELEASE_ID} on ${releaseEnv} environment.
+
+PURPOSE:
+${purpose}
+
+HIGHLIGHTS:
+${highlights}
+
+RELEASE WINDOW:
+Date: ${releaseWindow}
+
+SCOPE:
+${scopeSection}
+
+PRIMARY RISK:
+${primaryRisk}
+
+BLAST RADIUS:
+${blastRadius}
+
+Backout: Revert to prior mobile build; restore prior configs; (see runbook)
+
+Please reply with one of the lines below:
+\t• APPROVE: ${RELEASE_ID} — ${releaseWindow}
+\t• APPROVE WITH CONDITIONS: specify conditions
+\t• REJECT: specify reason
+\t• DEFER: specify new date/time
+
+Thanks,
+${releaseManager}`;
+
+        emailContent.innerHTML = emailBody.replace(/\n/g, '<br>');
+        emailModal.classList.remove('hidden');
+      });
+    }
+
+    // Modal close functionality
+    function closeEmailModal() {
+      if (emailModal) {
+        emailModal.classList.add('hidden');
+      }
+    }
+
+    function copyEmailToClipboard() {
+      const text = emailContent.textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('Email copied to clipboard!');
+        closeEmailModal();
+      }).catch(err => {
+        console.error('Copy failed:', err);
+        alert('Failed to copy to clipboard');
+      });
+    }
+
+    // Attach event listeners to modal buttons
+    const btnCloseModalX = document.getElementById('btnCloseModalX');
+    const btnCloseModal = document.getElementById('btnCloseModal');
+    const btnCopyEmailClipboard = document.getElementById('btnCopyEmailClipboard');
+
+    if (btnCloseModalX) {
+      btnCloseModalX.addEventListener('click', closeEmailModal);
+    }
+
+    if (btnCloseModal) {
+      btnCloseModal.addEventListener('click', closeEmailModal);
+    }
+
+    if (btnCopyEmailClipboard) {
+      btnCopyEmailClipboard.addEventListener('click', copyEmailToClipboard);
+    }
+
+    // Close modal on background click
+    if (emailModal) {
+      emailModal.addEventListener('click', (e) => {
+        if (e.target === emailModal) {
+          closeEmailModal();
+        }
+      });
+    }
+  </script>
 
   <script>
     // Toggle expandable row details

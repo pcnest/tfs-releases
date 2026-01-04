@@ -29,6 +29,7 @@ export function initDatabase(): void {
       wi_type              TEXT NOT NULL,
       title                TEXT NOT NULL,
       state                TEXT NOT NULL,
+      severity             TEXT,
       tags                 TEXT,
       acceptance_criteria  TEXT,
       description          TEXT,
@@ -55,15 +56,16 @@ export function replaceReleaseRows(releaseId: string, rows: DbRow[]): void {
   
   const insertStmt = db.prepare(`
     INSERT INTO build_readiness(
-      release_id, wi_id, wi_type, title, state, tags,
+      release_id, wi_id, wi_type, title, state, severity, tags,
       acceptance_criteria, description, dev_notes, qa_notes,
       score, missing, review_evidence
     )
-    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ON CONFLICT(release_id, wi_id) DO UPDATE SET
       wi_type = excluded.wi_type,
       title = excluded.title,
       state = excluded.state,
+      severity = excluded.severity,
       tags = excluded.tags,
       acceptance_criteria = excluded.acceptance_criteria,
       description = excluded.description,
@@ -85,6 +87,7 @@ export function replaceReleaseRows(releaseId: string, rows: DbRow[]): void {
         row.wi_type,
         row.title,
         row.state,
+        row.severity ?? null,
         row.tags ?? null,
         row.acceptance_criteria ?? null,
         row.description ?? null,
@@ -154,6 +157,55 @@ export function getCounts(releaseId: string): ReleaseCounts {
     fullScoreCount,
     fullScorePercent,
   };
+}
+
+/**
+ * Get all rows for a release (alias for getByRelease, for AI module)
+ */
+export function getRowsByRelease(releaseId: string): DbRow[] {
+  return getByRelease(releaseId);
+}
+
+/**
+ * Get theme-based groupings (simple keyword bucketing)
+ */
+export function getThemeBuckets(releaseId: string): Record<string, number[]> {
+  const rows = getByRelease(releaseId);
+  const themes: Record<string, number[]> = {};
+  
+  // Define theme keywords
+  const themeKeywords = [
+    'SearchElse',
+    'Historical Data',
+    'FTP',
+    'inmsg',
+    'FarPoint',
+    'ESL',
+    'Load',
+    'Unload',
+    'Device',
+    'Page',
+    'API',
+    'Performance',
+    'Security',
+    'UI',
+    'Database',
+  ];
+  
+  for (const row of rows) {
+    const searchText = `${row.title} ${row.tags || ''}`.toLowerCase();
+    
+    for (const theme of themeKeywords) {
+      if (searchText.includes(theme.toLowerCase())) {
+        if (!themes[theme]) {
+          themes[theme] = [];
+        }
+        themes[theme].push(row.wi_id);
+      }
+    }
+  }
+  
+  return themes;
 }
 
 /**
