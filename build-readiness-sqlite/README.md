@@ -195,13 +195,60 @@ CREATE TABLE build_readiness (
   description          TEXT,
   dev_notes            TEXT,
   qa_notes             TEXT,
-  score                TEXT,       -- e.g., "4/6"
-  missing              TEXT,       -- e.g., "DevNotes, QANotes"
-  review_evidence      TEXT,       -- e.g., "Field" or "Relation"
+  score                TEXT,       -- e.g., "3/4" (PeerReview, ChangeSummary, State, QANotes)
+  missing              TEXT,       -- e.g., "PeerReview, State"
+  review_evidence      TEXT,       -- e.g., "Peer", "Dev", "Relation", or "None"
   created_at           TEXT NOT NULL DEFAULT (datetime('now')),
   PRIMARY KEY (release_id, wi_id)
 );
 ```
+
+## Scoring System
+
+The readiness score is calculated on a **4-point scale** with the following criteria:
+
+### Score Breakdown (X/4)
+
+1. **PeerReview** - Buddy Testing Complete
+
+   - ✓ `Buddy Tested by:` field has a value
+   - ✓ `Buddy Test Date:` field has a value
+   - ✓ `Buddy Test Status:` contains "passed" or "pass" (case-insensitive)
+   - All three conditions must be met
+
+2. **ChangeSummary** - Development Documentation Complete
+
+   - ✓ `What Changed:` field has a value
+   - ✓ `What Was Impacted:` field has a value
+   - ✓ `What Must Be Tested:` field has a value
+   - All three fields must be filled
+
+3. **State** - Appropriate Workflow State
+
+   - ✓ Work item state is one of:
+     - `Branch Checkin`
+     - `Resolved`
+     - `Ready for QA`
+
+4. **QANotes** - QA Documentation
+   - ✓ QA Notes field is not empty
+
+### Review Evidence
+
+The `review_evidence` field categorizes the type of review completed:
+
+- **Peer** - Peer Review template filled (Buddy fields with values)
+- **Dev** - Change Summary template filled (What Changed/Impacted/Tested)
+- **Relation** - Has related work items linked
+- **None** - No review evidence found
+
+### Missing Column
+
+The `missing` column shows which criteria are not yet met, helping teams quickly identify what needs completion. For example:
+
+- `PeerReview, State` - Needs buddy testing and workflow progression
+- `ChangeSummary` - Needs developer documentation
+- Empty - All criteria met (4/4 score)
 
 ## Features
 

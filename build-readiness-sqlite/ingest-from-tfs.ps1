@@ -126,14 +126,44 @@ function Detect-ReviewEvidence($f) {
   return "None"
 }
 
+function Test-PeerReviewComplete($f) {
+  $devText = Strip-Html $f."SupplyPro.SPApplication.DevNotes"
+  $descText = Strip-Html $f."System.Description"
+  
+  # Check if all three fields are filled AND status is "passed" (case-insensitive)
+  $hasBuddyBy = ($devText -match 'Buddy Tested by:[^\r\n]*\S' -or $descText -match 'Buddy Tested by:[^\r\n]*\S')
+  $hasBuddyDate = ($devText -match 'Buddy Test Date:[^\r\n]*\S' -or $descText -match 'Buddy Test Date:[^\r\n]*\S')
+  $hasPassed = ($devText -match 'Buddy Test Status:[^\r\n]*(passed|pass)' -or $descText -match 'Buddy Test Status:[^\r\n]*(passed|pass)')
+  
+  return ($hasBuddyBy -and $hasBuddyDate -and $hasPassed)
+}
+
+function Test-ChangeSummaryComplete($f) {
+  $devText = Strip-Html $f."SupplyPro.SPApplication.DevNotes"
+  $descText = Strip-Html $f."System.Description"
+  
+  # Check if all three Change Summary fields are filled
+  $hasWhatChanged = ($devText -match 'What Changed:[^\r\n]*\S' -or $descText -match 'What Changed:[^\r\n]*\S')
+  $hasWhatImpacted = ($devText -match 'What Was Impacted:[^\r\n]*\S' -or $descText -match 'What Was Impacted:[^\r\n]*\S')
+  $hasWhatTested = ($devText -match 'What Must Be Tested:[^\r\n]*\S' -or $descText -match 'What Must Be Tested:[^\r\n]*\S')
+  
+  return ($hasWhatChanged -and $hasWhatImpacted -and $hasWhatTested)
+}
+
+function Test-AppropriateState($state) {
+  $validStates = @('Branch Checkin', 'Resolved', 'Ready for QA')
+  return ($validStates -contains $state)
+}
+
 function New-ApiRow($wi) {
   $f = $wi.fields
   
+  # New 4-point scoring system
   $checks = [ordered]@{
-    AcceptanceCriteria = Test-NotEmpty $f."Microsoft.VSTS.Common.AcceptanceCriteria"
-    Description        = Test-NotEmpty $f."System.Description"
-    DevNotes           = Test-NotEmpty $f."SupplyPro.SPApplication.DevNotes"
-    QANotes            = Test-NotEmpty $f."SupplyPro.SPApplication.QANotes"
+    PeerReview    = Test-PeerReviewComplete $f
+    ChangeSummary = Test-ChangeSummaryComplete $f
+    State         = Test-AppropriateState $f."System.State"
+    QANotes       = Test-NotEmpty $f."SupplyPro.SPApplication.QANotes"
   }
 
   $score = ($checks.GetEnumerator() | Where-Object { $_.Value }).Count
