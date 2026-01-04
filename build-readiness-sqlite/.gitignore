@@ -24,3 +24,7 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+
+build_readiness_*.json
+build_readiness_*.tsv
