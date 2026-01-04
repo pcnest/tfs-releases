@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed - Enhanced Scoring System
 
 #### Scoring Criteria
+
 - **Breaking Change**: Replaced 4-field scoring with quality gates-based scoring
 - **Old System**: X/4 based on AcceptanceCriteria, Description, DevNotes, QANotes (any content = pass)
 - **New System**: X/4 based on:
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   4. **QANotes**: QA Notes field not empty
 
 #### PowerShell Ingestion Script
+
 - Added `Test-PeerReviewComplete()` function - validates all buddy fields + passed status
 - Added `Test-ChangeSummaryComplete()` function - validates all three change summary fields
 - Added `Test-AppropriateState()` function - validates workflow state
@@ -26,16 +28,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Impact**: Stricter scoring will result in lower scores initially, driving better documentation habits
 
 #### Review Evidence Detection
+
 - Fixed regex patterns to check same-line values only (prevents false positives from multi-line templates)
 - Changed from `:\s*\S+` to `:[^\r\n]*\S` to ensure values appear on the same line as field labels
 - More accurate detection of Peer Review and Change Summary completion
 
 #### Frontend UI
+
 - Removed "Missing" column (data still available, just hidden from display)
 - Removed "Tags" column (data still available, just hidden from display)
 - Cleaner table view focusing on key metrics
 
 ### Fixed
+
 - Buddy Test Status validation now case-insensitive (accepts "passed", "pass", "Passed", "Pass")
 - Review evidence no longer shows "Peer" or "Dev" for empty template fields
 
