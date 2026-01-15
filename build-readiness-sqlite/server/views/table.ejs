@@ -439,7 +439,8 @@
       wi_id: r.wi_id,
       wi_type: r.wi_type,
       title: r.title,
-      state: r.state
+      state: r.state,
+      severity: r.severity
     }))) %>;
 
     // Track dirty state for textareas
@@ -589,67 +590,76 @@
         const primaryRisk = document.getElementById('primaryRisk').value || '[Primary Risk]';
         const blastRadius = document.getElementById('blastRadius').value || '[Blast Radius]';
 
-        // Group tickets by type for scope section
-        const bugs = RELEASE_ROWS.filter(r => r.wi_type.toLowerCase().includes('bug'));
-        const pbis = RELEASE_ROWS.filter(r => !r.wi_type.toLowerCase().includes('bug'));
-
         // Build TFS work item URL from environment variables
         const tfsItemUrl = `${TFS_BASE}/${TFS_PROJECT}/_workitems/edit`;
 
-        let scopeSection = 'Bugs:\n';
-        if (bugs.length > 0) {
-          bugs.forEach(bug => {
-            scopeSection += `<a href="${tfsItemUrl}/${bug.wi_id}">${bug.wi_id}</a> - Bug: ${bug.title}\n\n`;
+        const escapeHtml = (value) => String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+
+        const formatText = (value) => escapeHtml(value).replace(/\n/g, '<br>');
+
+
+        let scopeSection = '<table style="border-collapse:collapse;width:100%;">';
+        scopeSection += '<thead><tr>' +
+          '<th style="text-align:left;border:1px solid #ddd;padding:4px 8px;">ID</th>' +
+          '<th style="text-align:left;border:1px solid #ddd;padding:4px 8px;">Type</th>' +
+          '<th style="text-align:left;border:1px solid #ddd;padding:4px 8px;">Title</th>' +
+          '<th style="text-align:left;border:1px solid #ddd;padding:4px 8px;">Severity</th>' +
+          '</tr></thead><tbody>';
+
+        if (RELEASE_ROWS.length > 0) {
+          RELEASE_ROWS.forEach(row => {
+            const rowSeverity = row.severity ? row.severity : '-';
+            scopeSection += '<tr>' +
+              `<td style="border:1px solid #ddd;padding:4px 8px;"><a href="${tfsItemUrl}/${row.wi_id}">${row.wi_id}</a></td>` +
+              `<td style="border:1px solid #ddd;padding:4px 8px;">${escapeHtml(row.wi_type)}</td>` +
+              `<td style="border:1px solid #ddd;padding:4px 8px;">${escapeHtml(row.title)}</td>` +
+              `<td style="border:1px solid #ddd;padding:4px 8px;">${escapeHtml(rowSeverity)}</td>` +
+              '</tr>';
           });
         } else {
-          scopeSection += 'None\n\n';
+          scopeSection += '<tr><td colspan="4" style="border:1px solid #ddd;padding:4px 8px;">None</td></tr>';
         }
 
-        scopeSection += 'PBIs:\n';
-        if (pbis.length > 0) {
-          pbis.forEach(pbi => {
-            scopeSection += `<a href="${tfsItemUrl}/${pbi.wi_id}">${pbi.wi_id}</a> - ${pbi.wi_type}: ${pbi.title}\n\n`;
-          });
-        } else {
-          scopeSection += 'None\n';
-        }
+        scopeSection += '</tbody></table>';
 
-        const emailBody = `Subject: Release Approval Request - ${projectName} (${RELEASE_ID})
+        const emailBody = `
+<div><b>Subject:</b> Release Approval Request - ${escapeHtml(projectName)} (${escapeHtml(RELEASE_ID)}) on ${escapeHtml(releaseEnv)} Env</div>
+<br>
+<div>Hi ${escapeHtml(releaseManager)},</div>
+<br>
+<div>Greetings!</div>
+<br>
+<div>I'm requesting approval to schedule a ${escapeHtml(changeType)} build/deployment for ${escapeHtml(RELEASE_ID)} on ${escapeHtml(releaseEnv)} environment.</div>
+<br>
+<div><b>PURPOSE:</b><br>${formatText(purpose)}</div>
+<br>
+<div><b>HIGHLIGHTS:</b><br>${formatText(highlights)}</div>
+<br>
+<div><b>RELEASE WINDOW:</b><br>Date: ${escapeHtml(releaseWindow)}</div>
+<br>
+<div><b>SCOPE:</b><br>${scopeSection}</div>
+<br>
+<div><b>PRIMARY RISK:</b><br>${formatText(primaryRisk)}</div>
+<br>
+<div><b>BLAST RADIUS:</b><br>${formatText(blastRadius)}</div>
+<br>
+<div><b>Backout:</b> Revert to prior ${escapeHtml(projectName)} build; restore prior configs; (see runbook)</div>
+<br>
+<div>Please reply with one of the lines below:</div>
+<div>&nbsp;&nbsp;- APPROVE: ${escapeHtml(RELEASE_ID)} - ${escapeHtml(releaseWindow)}</div>
+<div>&nbsp;&nbsp;- APPROVE WITH CONDITIONS: specify conditions</div>
+<div>&nbsp;&nbsp;- REJECT: specify reason</div>
+<div>&nbsp;&nbsp;- DEFER: specify new date/time</div>
+<br>
+<div>Thanks,</div>
+<div>${escapeHtml(releaseManager)}</div>`;
 
-Hi ${releaseManager},
-
-I'm requesting approval to schedule a ${changeType} build/deployment for ${RELEASE_ID} on ${releaseEnv} environment.
-
-PURPOSE:
-${purpose}
-
-HIGHLIGHTS:
-${highlights}
-
-RELEASE WINDOW:
-Date: ${releaseWindow}
-
-SCOPE:
-${scopeSection}
-
-PRIMARY RISK:
-${primaryRisk}
-
-BLAST RADIUS:
-${blastRadius}
-
-Backout: Revert to prior mobile build; restore prior configs; (see runbook)
-
-Please reply with one of the lines below:
-\t• APPROVE: ${RELEASE_ID} — ${releaseWindow}
-\t• APPROVE WITH CONDITIONS: specify conditions
-\t• REJECT: specify reason
-\t• DEFER: specify new date/time
-
-Thanks,
-${releaseManager}`;
-
-        emailContent.innerHTML = emailBody.replace(/\n/g, '<br>');
+        emailContent.innerHTML = emailBody;
         emailModal.classList.remove('hidden');
       });
     }
@@ -662,7 +672,24 @@ ${releaseManager}`;
     }
 
     function copyEmailToClipboard() {
+      const html = emailContent.innerHTML;
       const text = emailContent.textContent;
+
+      if (navigator.clipboard && window.ClipboardItem) {
+        const item = new ClipboardItem({
+          'text/html': new Blob([html], { type: 'text/html' }),
+          'text/plain': new Blob([text], { type: 'text/plain' })
+        });
+        navigator.clipboard.write([item]).then(() => {
+          alert('Email copied to clipboard!');
+          closeEmailModal();
+        }).catch(err => {
+          console.error('Copy failed:', err);
+          alert('Failed to copy to clipboard');
+        });
+        return;
+      }
+
       navigator.clipboard.writeText(text).then(() => {
         alert('Email copied to clipboard!');
         closeEmailModal();
@@ -809,3 +836,5 @@ ${releaseManager}`;
 </body>
 
 </html>
+
+
