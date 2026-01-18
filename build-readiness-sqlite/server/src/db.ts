@@ -1,7 +1,13 @@
 import Database from 'better-sqlite3';
 import { mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
-import type { DbRow, ReleaseCounts } from './types';
+import type {
+  ApprovalHistoryCandidate,
+  ApprovalHistoryInput,
+  DbRow,
+  ReleaseCounts,
+  ReleaseFeatures,
+} from './types';
 
 const DATA_DIR = join(process.cwd(), 'data');
 const DB_PATH = join(DATA_DIR, 'build_readiness.db');
@@ -20,6 +26,7 @@ export function initDatabase(): void {
   // Open database
   db = new Database(DB_PATH);
   db.pragma('journal_mode = WAL');
+  db.pragma('foreign_keys = ON');
 
   // Create tables and indexes (idempotent)
   db.exec(`
@@ -43,6 +50,46 @@ export function initDatabase(): void {
     );
 
     CREATE INDEX IF NOT EXISTS idx_release ON build_readiness(release_id);
+
+    CREATE TABLE IF NOT EXISTS approval_history (
+      id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+      release_id          TEXT NOT NULL,
+      release_type        TEXT,
+      release_env         TEXT,
+      project_name        TEXT,
+      release_manager     TEXT,
+      ai_purpose          TEXT,
+      ai_highlights       TEXT,
+      ai_primary_risk     TEXT,
+      ai_blast_radius     TEXT,
+      ai_build_readiness  TEXT,
+      final_purpose       TEXT,
+      final_highlights    TEXT,
+      final_primary_risk  TEXT,
+      final_blast_radius  TEXT,
+      final_build_readiness TEXT,
+      edited_fields       TEXT,
+      created_at          TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_approval_history_release_id ON approval_history(release_id);
+    CREATE INDEX IF NOT EXISTS idx_approval_history_created_at ON approval_history(created_at);
+
+    CREATE TABLE IF NOT EXISTS approval_features (
+      history_id      INTEGER NOT NULL,
+      release_id      TEXT NOT NULL,
+      release_type    TEXT,
+      theme_counts    TEXT NOT NULL,
+      tag_tokens      TEXT NOT NULL,
+      hot_item_ids    TEXT NOT NULL,
+      severity_counts TEXT NOT NULL,
+      created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (history_id),
+      FOREIGN KEY (history_id) REFERENCES approval_history(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_approval_features_release_id ON approval_features(release_id);
+    CREATE INDEX IF NOT EXISTS idx_approval_features_release_type ON approval_features(release_type);
   `);
 
   console.log(`✓ Database initialized at ${DB_PATH}`);
@@ -206,6 +253,112 @@ export function getThemeBuckets(releaseId: string): Record<string, number[]> {
   }
   
   return themes;
+}
+
+/**
+ * Store AI draft + final edits for approval history
+ */
+export function saveApprovalHistory(
+  releaseId: string,
+  input: ApprovalHistoryInput,
+  features: ReleaseFeatures,
+  editedFields: string[]
+): number {
+  const insertHistory = db.prepare(`
+    INSERT INTO approval_history(
+      release_id, release_type, release_env, project_name, release_manager,
+      ai_purpose, ai_highlights, ai_primary_risk, ai_blast_radius, ai_build_readiness,
+      final_purpose, final_highlights, final_primary_risk, final_blast_radius, final_build_readiness,
+      edited_fields
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const insertFeatures = db.prepare(`
+    INSERT INTO approval_features(
+      history_id, release_id, release_type, theme_counts, tag_tokens, hot_item_ids, severity_counts
+    )
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `);
+
+  const transaction = db.transaction(() => {
+    const historyResult = insertHistory.run(
+      releaseId,
+      input.releaseType ?? null,
+      input.releaseEnv ?? null,
+      input.projectName ?? null,
+      input.releaseManager ?? null,
+      input.aiDraft?.purpose ?? null,
+      input.aiDraft?.highlights ? JSON.stringify(input.aiDraft.highlights) : null,
+      input.aiDraft?.primaryRisk ?? null,
+      input.aiDraft?.blastRadius ?? null,
+      input.aiDraft?.buildReadiness ?? null,
+      input.finalDraft?.purpose ?? null,
+      input.finalDraft?.highlights ? JSON.stringify(input.finalDraft.highlights) : null,
+      input.finalDraft?.primaryRisk ?? null,
+      input.finalDraft?.blastRadius ?? null,
+      input.finalDraft?.buildReadiness ?? null,
+      JSON.stringify(editedFields)
+    );
+
+    const historyId = Number(historyResult.lastInsertRowid);
+
+    insertFeatures.run(
+      historyId,
+      releaseId,
+      input.releaseType ?? null,
+      JSON.stringify(features.themeCounts),
+      JSON.stringify(features.tagTokens),
+      JSON.stringify(features.hotItemIds),
+      JSON.stringify(features.severityCounts)
+    );
+
+    return historyId;
+  });
+
+  return transaction();
+}
+
+/**
+ * Fetch approval history candidates for RAG scoring
+ */
+export function getApprovalHistoryCandidates(
+  excludeReleaseId: string,
+  limit = 200
+): ApprovalHistoryCandidate[] {
+  const safeLimit = Math.max(1, Math.min(limit, 500));
+  const stmt = db.prepare(`
+    SELECT
+      h.id,
+      h.release_id,
+      h.release_type,
+      h.release_env,
+      h.project_name,
+      h.release_manager,
+      h.ai_purpose,
+      h.ai_highlights,
+      h.ai_primary_risk,
+      h.ai_blast_radius,
+      h.ai_build_readiness,
+      h.final_purpose,
+      h.final_highlights,
+      h.final_primary_risk,
+      h.final_blast_radius,
+      h.final_build_readiness,
+      h.edited_fields,
+      h.created_at,
+      f.theme_counts,
+      f.tag_tokens,
+      f.hot_item_ids,
+      f.severity_counts
+    FROM approval_history h
+    JOIN approval_features f ON f.history_id = h.id
+    WHERE h.release_id != ?
+    ORDER BY h.created_at DESC
+    LIMIT ?
+  `);
+
+  return stmt.all(excludeReleaseId, safeLimit) as ApprovalHistoryCandidate[];
 }
 
 /**

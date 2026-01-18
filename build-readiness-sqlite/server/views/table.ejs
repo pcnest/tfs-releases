@@ -333,6 +333,7 @@
                         <option value="">Select type</option>
                         <option value="standard">Standard</option>
                         <option value="emergency">Emergency</option>
+                        <option value="patch">Patch</option>
                       </select>
                     </div>
                   </div>
@@ -443,6 +444,8 @@
       severity: r.severity
     }))) %>;
 
+    let lastAiDraft = null;
+
     // Track dirty state for textareas
     const dirtyFields = {
       purpose: false,
@@ -496,7 +499,8 @@
             },
             body: JSON.stringify({
               maxHighlights: 7,
-              severityKeywords: ['High', 'Critical']
+              severityKeywords: ['High', 'Critical'],
+              releaseType: document.getElementById('changeType').value || undefined
             })
           });
 
@@ -506,6 +510,7 @@
           }
 
           const data = await response.json();
+          lastAiDraft = data;
 
           // Populate fields
           document.getElementById('purpose').value = data.purpose || '';
@@ -567,6 +572,7 @@
 
           // Reset dirty flags
           Object.keys(dirtyFields).forEach(k => dirtyFields[k] = false);
+          lastAiDraft = null;
         }
       });
     }
@@ -671,9 +677,59 @@
       }
     }
 
-    function copyEmailToClipboard() {
+    function buildApprovalHistoryPayload() {
+      const projectName = document.getElementById('projectName').value || '';
+      const releaseManager = document.getElementById('releaseManager').value || '';
+      const purpose = document.getElementById('purpose').value || '';
+      const highlightsText = document.getElementById('highlights').value || '';
+      const primaryRisk = document.getElementById('primaryRisk').value || '';
+      const blastRadius = document.getElementById('blastRadius').value || '';
+      const releaseEnv = document.getElementById('releaseEnv').value || '';
+      const releaseType = document.getElementById('changeType').value || '';
+
+      const highlights = highlightsText.split('\n').map(line => line.trim()).filter(Boolean);
+      const buildReadinessContent = document.getElementById('buildReadinessContent');
+      const buildReadiness = buildReadinessContent && !buildReadinessContent.classList.contains('text-gray-400')
+        ? (buildReadinessContent.textContent || '')
+        : '';
+
+      return {
+        releaseType: releaseType || undefined,
+        releaseEnv: releaseEnv || undefined,
+        projectName: projectName || undefined,
+        releaseManager: releaseManager || undefined,
+        aiDraft: lastAiDraft || undefined,
+        finalDraft: {
+          purpose,
+          highlights,
+          primaryRisk,
+          blastRadius,
+          buildReadiness
+        }
+      };
+    }
+
+    async function persistApprovalHistory() {
+      const payload = buildApprovalHistoryPayload();
+      try {
+        await fetch(`/api/approval-history/${RELEASE_ID}`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${AUTH_TOKEN}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+      } catch (error) {
+        console.warn('Approval history save failed:', error);
+      }
+    }
+
+    async function copyEmailToClipboard() {
       const html = emailContent.innerHTML;
       const text = emailContent.textContent;
+
+      await persistApprovalHistory();
 
       if (navigator.clipboard && window.ClipboardItem) {
         const item = new ClipboardItem({

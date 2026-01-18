@@ -1,9 +1,65 @@
 import { Router, Request, Response } from 'express';
-import { ApiPayloadSchema, mapApiRowToDb, DraftApprovalInputSchema } from './types';
-import { replaceReleaseRows, getByRelease, getCounts, getRowsByRelease } from './db';
-import { draftApproval } from './ai';
+import {
+  ApiPayloadSchema,
+  ApprovalHistoryInputSchema,
+  DraftApprovalInputSchema,
+  mapApiRowToDb,
+} from './types';
+import {
+  getByRelease,
+  getCounts,
+  getRowsByRelease,
+  replaceReleaseRows,
+  saveApprovalHistory,
+} from './db';
+import { draftApproval, extractReleaseFeatures } from './ai';
 
 const router = Router();
+const DEFAULT_SEVERITY_KEYWORDS = ['High', 'Critical'];
+
+function normalizeText(value?: string): string {
+  if (!value) {
+    return '';
+  }
+  return value.replace(/\s+/g, ' ').trim();
+}
+
+function normalizeHighlights(value?: string[]): string[] {
+  if (!value) {
+    return [];
+  }
+  return value.map(line => line.trim()).filter(Boolean);
+}
+
+function computeEditedFields(
+  aiDraft: { purpose?: string; highlights?: string[]; primaryRisk?: string; blastRadius?: string; buildReadiness?: string } | undefined,
+  finalDraft: { purpose?: string; highlights?: string[]; primaryRisk?: string; blastRadius?: string; buildReadiness?: string }
+): string[] {
+  if (!aiDraft) {
+    return [];
+  }
+
+  const edited: string[] = [];
+  if (normalizeText(aiDraft.purpose) !== normalizeText(finalDraft.purpose)) {
+    edited.push('purpose');
+  }
+  const aiHighlights = normalizeHighlights(aiDraft.highlights).join('\n');
+  const finalHighlights = normalizeHighlights(finalDraft.highlights).join('\n');
+  if (aiHighlights !== finalHighlights) {
+    edited.push('highlights');
+  }
+  if (normalizeText(aiDraft.primaryRisk) !== normalizeText(finalDraft.primaryRisk)) {
+    edited.push('primaryRisk');
+  }
+  if (normalizeText(aiDraft.blastRadius) !== normalizeText(finalDraft.blastRadius)) {
+    edited.push('blastRadius');
+  }
+  if (normalizeText(aiDraft.buildReadiness) !== normalizeText(finalDraft.buildReadiness)) {
+    edited.push('buildReadiness');
+  }
+
+  return edited;
+}
 
 /**
  * Health check endpoint
@@ -206,6 +262,81 @@ router.post('/api/draft-approval/:rid', async (req: Request, res: Response) => {
     
     res.status(500).json({ 
       error: 'Failed to generate draft',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * Save approval draft + edits for RAG history
+ * POST /api/approval-history/:rid
+ * Requires: Authorization: Bearer <AUTH_TOKEN>
+ */
+router.post('/api/approval-history/:rid', (req: Request, res: Response) => {
+  try {
+    // Verify authorization
+    const authHeader = req.headers.authorization;
+    const expectedToken = process.env.AUTH_TOKEN;
+
+    if (!expectedToken) {
+      return res.status(500).json({ 
+        error: 'Server configuration error: AUTH_TOKEN not set' 
+      });
+    }
+
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Missing or invalid Authorization header' });
+    }
+
+    const token = authHeader.substring(7);
+    if (token !== expectedToken) {
+      return res.status(401).json({ error: 'Invalid authentication token' });
+    }
+
+    const releaseId = req.params.rid;
+    const rows = getRowsByRelease(releaseId);
+
+    if (rows.length === 0) {
+      return res.status(400).json({ 
+        error: 'No rows found for this release',
+        release_id: releaseId
+      });
+    }
+
+    const parseResult = ApprovalHistoryInputSchema.safeParse(req.body || {});
+    if (!parseResult.success) {
+      return res.status(400).json({ 
+        error: 'Invalid input options',
+        details: parseResult.error.issues 
+      });
+    }
+
+    const input = parseResult.data;
+    const normalizedInput = {
+      ...input,
+      aiDraft: input.aiDraft ? {
+        ...input.aiDraft,
+        highlights: normalizeHighlights(input.aiDraft.highlights),
+      } : undefined,
+      finalDraft: {
+        ...input.finalDraft,
+        highlights: normalizeHighlights(input.finalDraft.highlights),
+      },
+    };
+
+    const editedFields = computeEditedFields(
+      normalizedInput.aiDraft,
+      normalizedInput.finalDraft
+    );
+
+    const features = extractReleaseFeatures(rows, DEFAULT_SEVERITY_KEYWORDS);
+    const historyId = saveApprovalHistory(releaseId, normalizedInput, features, editedFields);
+
+    res.json({ ok: true, id: historyId });
+  } catch (error) {
+    console.error('Approval history error:', error);
+    res.status(500).json({ 
+      error: 'Failed to save approval history',
       message: error instanceof Error ? error.message : 'Unknown error'
     });
   }

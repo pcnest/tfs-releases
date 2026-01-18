@@ -340,11 +340,56 @@ Invoke-RestMethod -Uri "http://127.0.0.1:8080/api/draft-approval/YOUR_RELEASE_ID
 - Verify AUTH_TOKEN is rendered in page
 - Check CSP settings in helmet middleware
 
+## RAG History and Retrieval
+
+This builds a lightweight retrieval-augmented generation (RAG) layer using
+past approved drafts and user edits. History is recorded when users copy the
+email draft from the UI.
+
+### Schema
+
+**approval_history**
+
+- `id` (PK)
+- `release_id`, `release_type`, `release_env`, `project_name`, `release_manager`
+- `ai_purpose`, `ai_highlights` (JSON array), `ai_primary_risk`,
+  `ai_blast_radius`, `ai_build_readiness`
+- `final_purpose`, `final_highlights` (JSON array), `final_primary_risk`,
+  `final_blast_radius`, `final_build_readiness`
+- `edited_fields` (JSON array)
+- `created_at`
+
+**approval_features**
+
+- `history_id` (PK, FK -> approval_history.id)
+- `release_id`, `release_type`
+- `theme_counts` (JSON object: `{ theme: count }`)
+- `tag_tokens` (JSON array)
+- `hot_item_ids` (JSON array)
+- `severity_counts` (JSON object: `{ critical, high, total }`)
+- `created_at`
+
+### Retrieval Scoring
+
+The draft generator scores prior approvals with a weighted overlap model
+(no embeddings):
+
+- +4 per overlapping theme keyword
+- +2 per overlapping tag token
+- +2 if both releases have hot items
+- +1 if both releases have critical items
+- +1 if both releases have high items
+- +3 if `release_type` matches
+
+Top 3 results are injected into the prompt under **Relevant Past Drafts & Edits**.
+Each entry includes AI vs final snippets plus edited fields to bias toward
+human improvements.
+
 ## Future Enhancements
 
 Potential improvements:
 
-- [ ] Save draft history to database
+- [ ] Add a UI review page for approval history
 - [ ] Export to PDF format
 - [ ] Custom AI instructions per project
 - [ ] Support for multiple AI models

@@ -87,6 +87,7 @@ export function mapApiRowToDb(apiRow: ApiRow): DbRow {
 export const DraftApprovalInputSchema = z.object({
   maxHighlights: z.number().int().min(1).max(10).optional().default(6),
   severityKeywords: z.array(z.string()).optional().default(['High', 'Critical']),
+  releaseType: z.string().optional(),
 });
 
 export type DraftApprovalInput = z.infer<typeof DraftApprovalInputSchema>;
@@ -103,4 +104,62 @@ export const DraftApprovalOutputSchema = z.object({
 });
 
 export type DraftApprovalOutput = z.infer<typeof DraftApprovalOutputSchema>;
+
+/**
+ * Approval history storage (AI draft + final edits)
+ */
+export const ApprovalDraftSchema = z.object({
+  purpose: z.string().optional(),
+  highlights: z.array(z.string()).optional(),
+  primaryRisk: z.string().optional(),
+  blastRadius: z.string().optional(),
+  buildReadiness: z.string().optional(),
+});
+
+export const ApprovalHistoryInputSchema = z.object({
+  releaseType: z.string().optional(),
+  releaseEnv: z.string().optional(),
+  projectName: z.string().optional(),
+  releaseManager: z.string().optional(),
+  aiDraft: ApprovalDraftSchema.optional(),
+  finalDraft: ApprovalDraftSchema,
+});
+
+export type ApprovalHistoryInput = z.infer<typeof ApprovalHistoryInputSchema>;
+
+export interface ReleaseFeatures {
+  themeCounts: Record<string, number>;
+  tagTokens: string[];
+  hotItemIds: number[];
+  severityCounts: {
+    critical: number;
+    high: number;
+    total: number;
+  };
+}
+
+export interface ApprovalHistoryCandidate {
+  id: number;
+  release_id: string;
+  release_type?: string;
+  release_env?: string;
+  project_name?: string;
+  release_manager?: string;
+  ai_purpose?: string;
+  ai_highlights?: string;
+  ai_primary_risk?: string;
+  ai_blast_radius?: string;
+  ai_build_readiness?: string;
+  final_purpose?: string;
+  final_highlights?: string;
+  final_primary_risk?: string;
+  final_blast_radius?: string;
+  final_build_readiness?: string;
+  edited_fields?: string;
+  created_at: string;
+  theme_counts: string;
+  tag_tokens: string;
+  hot_item_ids: string;
+  severity_counts: string;
+}
 
