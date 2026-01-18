@@ -351,7 +351,7 @@ email draft from the UI.
 **approval_history**
 
 - `id` (PK)
-- `release_id`, `release_type`, `release_env`, `project_name`, `release_manager`
+- `release_id`, `release_type`, `release_env`, `project_name`, `project_owner`, `release_manager`
 - `ai_purpose`, `ai_highlights` (JSON array), `ai_primary_risk`,
   `ai_blast_radius`, `ai_build_readiness`
 - `final_purpose`, `final_highlights` (JSON array), `final_primary_risk`,

@@ -120,6 +120,7 @@ export const ApprovalHistoryInputSchema = z.object({
   releaseType: z.string().optional(),
   releaseEnv: z.string().optional(),
   projectName: z.string().optional(),
+  projectOwner: z.string().optional(),
   releaseManager: z.string().optional(),
   aiDraft: ApprovalDraftSchema.optional(),
   finalDraft: ApprovalDraftSchema,
@@ -144,6 +145,7 @@ export interface ApprovalHistoryCandidate {
   release_type?: string;
   release_env?: string;
   project_name?: string;
+  project_owner?: string;
   release_manager?: string;
   ai_purpose?: string;
   ai_highlights?: string;

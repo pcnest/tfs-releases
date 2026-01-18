@@ -265,12 +265,19 @@
 
               <form id="approvalForm" class="space-y-6">
                 <!-- Project Name and Release Manager -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
                     <label for="projectName" class="block text-sm font-medium text-gray-700 mb-1">
                       Project Name <span class="text-red-500">*</span>
                     </label>
                     <input type="text" id="projectName" name="projectName" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  </div>
+                  <div>
+                    <label for="projectOwner" class="block text-sm font-medium text-gray-700 mb-1">
+                      Project Owner <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" id="projectOwner" name="projectOwner" required
                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                   </div>
                   <div>
@@ -586,6 +593,7 @@
       btnCopyEmail.addEventListener('click', () => {
         // Build email body from form fields
         const projectName = document.getElementById('projectName').value || '[Project Name]';
+        const projectOwner = document.getElementById('projectOwner').value || '[Project Owner]';
         const releaseManager = document.getElementById('releaseManager').value || '[Release Manager]';
         const purpose = document.getElementById('purpose').value || '[Purpose]';
         const highlights = document.getElementById('highlights').value || '[Highlights]';
@@ -640,7 +648,7 @@
 <br>
 <div>Greetings!</div>
 <br>
-<div>I'm requesting approval to schedule a ${escapeHtml(changeType)} build/deployment for ${escapeHtml(RELEASE_ID)} on ${escapeHtml(releaseEnv)} environment.</div>
+<div>The ${escapeHtml(projectOwner)} is requesting approval to schedule a ${escapeHtml(changeType)} build/deployment for ${escapeHtml(RELEASE_ID)} on ${escapeHtml(releaseEnv)} environment.</div>
 <br>
 <div><b>PURPOSE:</b><br>${formatText(purpose)}</div>
 <br>
@@ -679,6 +687,7 @@
 
     function buildApprovalHistoryPayload() {
       const projectName = document.getElementById('projectName').value || '';
+      const projectOwner = document.getElementById('projectOwner').value || '';
       const releaseManager = document.getElementById('releaseManager').value || '';
       const purpose = document.getElementById('purpose').value || '';
       const highlightsText = document.getElementById('highlights').value || '';
@@ -697,6 +706,7 @@
         releaseType: releaseType || undefined,
         releaseEnv: releaseEnv || undefined,
         projectName: projectName || undefined,
+        projectOwner: projectOwner || undefined,
         releaseManager: releaseManager || undefined,
         aiDraft: lastAiDraft || undefined,
         finalDraft: {

@@ -28,6 +28,14 @@ export function initDatabase(): void {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
 
+  const addColumnIfMissing = (table: string, column: string, type: string): void => {
+    const columns = db.prepare(`PRAGMA table_info(${table})`).all() as { name: string }[];
+    const hasColumn = columns.some(entry => entry.name === column);
+    if (!hasColumn) {
+      db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${type}`);
+    }
+  };
+
   // Create tables and indexes (idempotent)
   db.exec(`
     CREATE TABLE IF NOT EXISTS build_readiness (
@@ -57,6 +65,7 @@ export function initDatabase(): void {
       release_type        TEXT,
       release_env         TEXT,
       project_name        TEXT,
+      project_owner       TEXT,
       release_manager     TEXT,
       ai_purpose          TEXT,
       ai_highlights       TEXT,
@@ -91,6 +100,8 @@ export function initDatabase(): void {
     CREATE INDEX IF NOT EXISTS idx_approval_features_release_id ON approval_features(release_id);
     CREATE INDEX IF NOT EXISTS idx_approval_features_release_type ON approval_features(release_type);
   `);
+
+  addColumnIfMissing('approval_history', 'project_owner', 'TEXT');
 
   console.log(`✓ Database initialized at ${DB_PATH}`);
 }
@@ -266,12 +277,12 @@ export function saveApprovalHistory(
 ): number {
   const insertHistory = db.prepare(`
     INSERT INTO approval_history(
-      release_id, release_type, release_env, project_name, release_manager,
+      release_id, release_type, release_env, project_name, project_owner, release_manager,
       ai_purpose, ai_highlights, ai_primary_risk, ai_blast_radius, ai_build_readiness,
       final_purpose, final_highlights, final_primary_risk, final_blast_radius, final_build_readiness,
       edited_fields
     )
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
   const insertFeatures = db.prepare(`
@@ -287,6 +298,7 @@ export function saveApprovalHistory(
       input.releaseType ?? null,
       input.releaseEnv ?? null,
       input.projectName ?? null,
+      input.projectOwner ?? null,
       input.releaseManager ?? null,
       input.aiDraft?.purpose ?? null,
       input.aiDraft?.highlights ? JSON.stringify(input.aiDraft.highlights) : null,
@@ -334,6 +346,7 @@ export function getApprovalHistoryCandidates(
       h.release_type,
       h.release_env,
       h.project_name,
+      h.project_owner,
       h.release_manager,
       h.ai_purpose,
       h.ai_highlights,
